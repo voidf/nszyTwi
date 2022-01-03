@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.compose.jetchat.FunctionalityNotAvailablePopup
 import com.example.compose.jetchat.R
+import com.example.compose.jetchat.api_host
 import com.example.compose.jetchat.components.AnimatingFabContent
 import com.example.compose.jetchat.components.JetchatAppBar
 import com.example.compose.jetchat.components.baselineHeight
@@ -52,10 +53,35 @@ import com.example.compose.jetchat.conversation.UserInput
 import com.example.compose.jetchat.conversation.UserInputText
 import com.example.compose.jetchat.data.colleagueProfile
 import com.example.compose.jetchat.data.meProfile
+import com.example.compose.jetchat.ktorClient
 import com.example.compose.jetchat.theme.JetchatTheme
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
+import io.ktor.client.request.*
+import kotlinx.coroutines.launch
+
+import kotlinx.serialization.*
+import kotlinx.serialization.json.Json
+
+var AccessToken: String = ""
+var UserName: String = ""
+
+@Serializable
+data class tokenResponse(
+    val access_token: String,
+)
+
+@Serializable
+data class trueReturn(
+    val msg: String,
+)
+
+@Serializable
+data class loginForm(
+    val username: String,
+    val password: String
+)
 
 @ExperimentalFoundationApi
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,7 +116,20 @@ fun LoginScreen() {
                     )
                     Row (){
                         Button(
-                            onClick = {},
+                            onClick = {
+                                scope.launch{
+                                    try {
+                                        val r = ktorClient.post<String>("$api_host/user/login") {
+                                            body=loginForm(username=username.text, password = password.text)
+                                        }
+                                        val res = Json { ignoreUnknownKeys = true }.decodeFromString<tokenResponse>(r)
+                                        AccessToken = res.access_token
+                                        Toast.makeText(ctx, "登录成功$AccessToken", Toast.LENGTH_LONG).show()
+                                    } catch (e: Exception){
+                                        Toast.makeText(ctx, "$e\n登录失败", Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            },
                             contentPadding = PaddingValues(
                                 start = 20.dp,
                                 top = 12.dp,
@@ -109,7 +148,21 @@ fun LoginScreen() {
                         Spacer(Modifier.size(ButtonDefaults.IconSpacing*5))
                         Button(
                             onClick = {
-                                  Toast.makeText(ctx, "fdas", Toast.LENGTH_SHORT).show()
+                                scope.launch{
+                                    try {
+                                        val r = ktorClient.post<String>("$api_host/user/register") {
+                                            body=loginForm(username=username.text, password = password.text)
+                                        }
+                                        val res = Json { ignoreUnknownKeys = true }.decodeFromString<trueReturn>(r)
+                                        if (res.msg.length==0)
+                                            Toast.makeText(ctx, "注册成功", Toast.LENGTH_LONG).show()
+
+                                    } catch (e: Exception){
+                                        Toast.makeText(ctx, "$e\n注册失败", Toast.LENGTH_LONG).show()
+                                    }
+
+
+                                }
                             },
                             contentPadding = PaddingValues(
                                 start = 20.dp,

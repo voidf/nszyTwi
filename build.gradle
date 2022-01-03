@@ -26,13 +26,16 @@ buildscript {
     }
     ext{
         ktor_version = "1.6.5"
+        kotlin_version = "1.6.10"
+        agp_version = '7.0.4'
     }
 
     dependencies {
         classpath Libs.androidGradlePlugin
         classpath Libs.Kotlin.gradlePlugin
-        classpath "org.jetbrains.kotlin:kotlin-serialization:1.4.30"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10'
+        classpath "com.android.tools.build:gradle:$agp_version"
     }
 }
 
@@ -78,6 +81,7 @@ subprojects {
             freeCompilerArgs += '-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi'
             freeCompilerArgs += '-Xopt-in=kotlinx.coroutines.FlowPreview'
             freeCompilerArgs += '-Xopt-in=kotlin.Experimental'
+            freeCompilerArgs += '-P=plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true'
 
             // Set JVM target to 1.8
             jvmTarget = "1.8"

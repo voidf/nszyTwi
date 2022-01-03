@@ -79,6 +79,7 @@ android {
 
     composeOptions {
         kotlinCompilerExtensionVersion '1.1.0-rc02' // For Kotlin 1.6.10. Revert with rc03.
+//        kotlinCompilerExtensionVersion = '1.0.5'
     }
 
     packagingOptions {
@@ -143,7 +144,7 @@ dependencies {
     }
 }
 apply plugin: 'kotlinx-serialization'
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
+//apply plugin: 'com.android.application'
+//apply plugin: 'kotlin-android'
+//apply plugin: 'kotlin-android-extensions'
+//apply plugin: 'kotlin-kapt'
