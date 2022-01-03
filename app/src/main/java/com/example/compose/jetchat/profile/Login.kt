@@ -16,33 +16,25 @@
 
 package com.example.compose.jetchat.profile
 
+import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -69,17 +61,25 @@ import com.google.accompanist.insets.statusBarsPadding
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen() {
+    val ctx = LocalContext.current
+
+    val scope = rememberCoroutineScope()
 
     var username by remember { mutableStateOf(TextFieldValue("用户名")) }
     var password by remember { mutableStateOf(TextFieldValue("密码")) }
 
+
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxHeight()
+
     ) {
         BoxWithConstraints(modifier = Modifier.weight(1f)) {
             Surface {
-                Column() {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally) {
                     editableTextT2(
                         onTextChanged = { username = it},
                         textFieldValue = username
@@ -88,9 +88,46 @@ fun LoginScreen() {
                         onTextChanged = { password = it},
                         textFieldValue = password
                     )
-                    Box(
-
-                    )
+                    Row (){
+                        Button(
+                            onClick = {},
+                            contentPadding = PaddingValues(
+                                start = 20.dp,
+                                top = 12.dp,
+                                end = 20.dp,
+                                bottom = 12.dp
+                            )
+                        ) {
+                            Icon(
+                                Icons.Filled.Login,
+                                contentDescription = "登录",
+                                modifier = Modifier.size(ButtonDefaults.IconSize)
+                            )
+                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                            Text("登录")
+                        }
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing*5))
+                        Button(
+                            onClick = {
+                                  Toast.makeText(ctx, "fdas", Toast.LENGTH_SHORT).show()
+                            },
+                            contentPadding = PaddingValues(
+                                start = 20.dp,
+                                top = 12.dp,
+                                end = 20.dp,
+                                bottom = 12.dp
+                            )
+                        ) {
+                            // Inner content including an icon and a text label
+                            Icon(
+                                Icons.Filled.AppRegistration,
+                                contentDescription = "注册",
+                                modifier = Modifier.size(ButtonDefaults.IconSize)
+                            )
+                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                            Text("注册")
+                        }
+                    }
                 }
             }
 

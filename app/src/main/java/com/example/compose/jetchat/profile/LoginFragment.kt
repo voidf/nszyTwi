@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -33,16 +34,11 @@ import com.example.compose.jetchat.theme.JetchatTheme
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.ViewWindowInsetObserver
 
+@ExperimentalFoundationApi
 class LoginFragment : Fragment() {
-
-    private val viewModel: ProfileViewModel by viewModels()
-    private val activityViewModel: MainViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        // Consider using safe args plugin
-        val userId = arguments?.getString("userId")
-        viewModel.setUserId(userId)
     }
 
     override fun onCreateView(
@@ -61,20 +57,10 @@ class LoginFragment : Fragment() {
         val windowInsets = ViewWindowInsetObserver(this).start()
 
         setContent {
-            val userData by viewModel.userData.observeAsState()
 
             CompositionLocalProvider(LocalWindowInsets provides windowInsets) {
                 JetchatTheme {
-                    if (userData == null) {
-                        ProfileError()
-                    } else {
-                        ProfileScreen(
-                            userData = userData!!,
-                            onNavIconPressed = {
-                                activityViewModel.openDrawer()
-                            }
-                        )
-                    }
+                    LoginScreen()
                 }
             }
         }

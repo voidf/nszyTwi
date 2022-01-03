@@ -13,3 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+backend/webcfg.py
+*.pyc
+backend/__pycache__

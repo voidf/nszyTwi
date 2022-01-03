@@ -24,10 +24,14 @@ buildscript {
         google()
         mavenCentral()
     }
+    ext{
+        ktor_version = "1.6.5"
+    }
 
     dependencies {
         classpath Libs.androidGradlePlugin
         classpath Libs.Kotlin.gradlePlugin
+        classpath "org.jetbrains.kotlin:kotlin-serialization:1.4.30"
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10'
     }
 }
