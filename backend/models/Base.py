@@ -36,16 +36,16 @@ class Base():
             d['id'] = str(self.id)
             return d
         except: # 不加注解上面会报错
-            return self.get_all_info()
-    def get_all_info(self, *args):
+            return self.get_all_info(depth=depth)
+    def get_all_info(self, depth=0, *args):
         d = {} 
         for k in self._fields_ordered:
             selfk = getattr(self, k)
             if isinstance(selfk, list):
                 for i in selfk:
-                    d.setdefault(k, []).append(Base.expand_mono(i))
+                    d.setdefault(k, []).append(Base.expand_mono(i, depth))
             else:
-                d[k] = Base.expand_mono(selfk)
+                d[k] = Base.expand_mono(selfk, depth)
         if hasattr(self, 'id'):
             d['id'] = str(self.id)
         return d
