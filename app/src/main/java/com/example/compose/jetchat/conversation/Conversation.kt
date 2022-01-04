@@ -16,22 +16,13 @@
 
 package com.example.compose.jetchat.conversation
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFrom
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -40,17 +31,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Comment
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LastBaseline
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
@@ -66,16 +55,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.compose.jetchat.FunctionalityNotAvailablePopup
+import com.example.compose.jetchat.*
 import com.example.compose.jetchat.R
 import com.example.compose.jetchat.components.JetchatAppBar
 import com.example.compose.jetchat.data.exampleUiState
+import com.example.compose.jetchat.profile.AccessToken
+import com.example.compose.jetchat.profile.UserName
+import com.example.compose.jetchat.profile.loginForm
+import com.example.compose.jetchat.profile.tokenResponse
 import com.example.compose.jetchat.theme.JetchatTheme
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.navigationBarsWithImePadding
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import com.google.accompanist.insets.statusBarsPadding
+import io.ktor.client.request.*
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 /**
  * Entry point for a conversation screen.
@@ -85,6 +81,64 @@ import kotlinx.coroutines.launch
  * @param modifier [Modifier] to apply to this layout node
  * @param onNavIconPressed Sends an event up when the user clicks on the menu
  */
+
+//@Composable
+//fun getTwis():State<Result<List<Message>>>{
+//    return produceState(initialValue = Result.Loading(1), producer = )
+//}
+
+@kotlinx.serialization.Serializable
+data class Resp<T>(
+    val data: T,
+    val msg: String,
+    val status: Boolean
+)
+
+@kotlinx.serialization.Serializable
+data class UserData(
+    val username: String,
+    val avatar: String? = null,
+    val desc: String? = null,
+    val follows: List<UserData>? = null
+)
+
+
+@kotlinx.serialization.Serializable
+data class SingleTwiData(
+    val id: String,
+    val content: String,
+    val author: UserData,
+    val is_top: Boolean,
+    val post_time: Long,
+    val comments: List<SingleTwiData>? = null
+)
+
+@kotlinx.serialization.Serializable
+data class AllTwiData(
+    val twis: List<SingleTwiData>
+)
+
+suspend fun getAllTwi(): MutableList<Message> {
+    try {
+        val r = ktorClient.get<Resp<AllTwiData>>("$api_host/twi/all")
+        val li = mutableListOf<com.example.compose.jetchat.conversation.Message>()
+        for (i in r.data.twis) {
+            li.add(
+                com.example.compose.jetchat.conversation.Message(
+                    i.author.username,
+                    i.content,
+                    "${i.post_time}"
+                )
+            )
+        }
+        Log.d("<<<suc>>>", "${r.data.twis}")
+        return li
+    } catch (e: Exception) {
+        Log.d("【req】", "$e")
+        throw e;
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConversationContent(
@@ -101,11 +155,16 @@ fun ConversationContent(
     val scrollBehavior = remember { TopAppBarDefaults.pinnedScrollBehavior() }
     val scope = rememberCoroutineScope()
 
+    val ctx = LocalContext.current
 
-//    LaunchedEffect{
-//
-//        Toast.makeText()
-//    }
+
+    LaunchedEffect(Unit) {
+        try {
+            uiState.pullMessages(getAllTwi())
+        } catch (e: Exception) {
+            Toast.makeText(ctx, e.toString(), Toast.LENGTH_LONG).show()
+        }
+    }
 
     Surface(modifier = modifier) {
 
@@ -145,6 +204,17 @@ fun ConversationContent(
                 scrollBehavior = scrollBehavior,
                 // Use statusBarsPadding() to move the app bar content below the status bar
                 modifier = Modifier.statusBarsPadding(),
+                onRefreshIconPressed = {
+                    scope.launch {
+                        try {
+                            uiState.pullMessages(getAllTwi())
+                            Toast.makeText(ctx, "更新成功", Toast.LENGTH_LONG).show()
+                        } catch (e: Exception) {
+                            Toast.makeText(ctx, e.toString(), Toast.LENGTH_LONG).show()
+                        }
+                    }
+
+                }
             )
         }
     }
@@ -156,9 +226,12 @@ fun ChannelNameBar(
     channelMembers: Int,
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    onNavIconPressed: () -> Unit = { }
+    onNavIconPressed: () -> Unit = { },
+    onRefreshIconPressed: () -> Unit = { },
 ) {
     var functionalityNotAvailablePopupShown by remember { mutableStateOf(false) }
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
     if (functionalityNotAvailablePopupShown) {
         FunctionalityNotAvailablePopup { functionalityNotAvailablePopupShown = false }
     }
@@ -187,7 +260,7 @@ fun ChannelNameBar(
                 imageVector = Icons.Outlined.Refresh,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
-                    .clickable(onClick = { functionalityNotAvailablePopupShown = true })
+                    .clickable(onClick = onRefreshIconPressed)
                     .padding(horizontal = 12.dp, vertical = 16.dp)
                     .height(24.dp),
                 contentDescription = stringResource(id = R.string.refresh)
@@ -265,8 +338,8 @@ fun Messages(
                         onAuthorClick = { name -> navigateToProfile(name) },
                         msg = content,
                         isUserMe = content.author == authorMe,
-                        isFirstMessageByAuthor = isFirstMessageByAuthor,
-                        isLastMessageByAuthor = isLastMessageByAuthor
+                        isFirstMessageByAuthor = true,
+                        isLastMessageByAuthor = true
                     )
                 }
             }
@@ -282,7 +355,7 @@ fun Messages(
         val jumpToBottomButtonEnabled by remember {
             derivedStateOf {
                 scrollState.firstVisibleItemIndex != 0 ||
-                    scrollState.firstVisibleItemScrollOffset > jumpThreshold
+                        scrollState.firstVisibleItemScrollOffset > jumpThreshold
             }
         }
 
@@ -314,37 +387,65 @@ fun Message(
     }
 
     val spaceBetweenAuthors = if (isLastMessageByAuthor) Modifier.padding(top = 8.dp) else Modifier
-    Row(modifier = spaceBetweenAuthors) {
-        if (isLastMessageByAuthor) {
-            // Avatar
-            Image(
+
+    Column{
+        Row(modifier = spaceBetweenAuthors) {
+            if (isLastMessageByAuthor) {
+                // Avatar
+                Image(
+                    modifier = Modifier
+                        .clickable(onClick = { onAuthorClick(msg.author) })
+                        .padding(horizontal = 16.dp)
+                        .size(42.dp)
+                        .border(1.5.dp, borderColor, CircleShape)
+                        .border(3.dp, MaterialTheme.colorScheme.surface, CircleShape)
+                        .clip(CircleShape)
+                        .align(Alignment.Top),
+                    painter = painterResource(id = msg.authorImage),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null,
+                )
+            } else {
+                // Space under avatar
+                Spacer(modifier = Modifier.width(74.dp))
+            }
+            AuthorAndTextMessage(
+                msg = msg,
+                isUserMe = isUserMe,
+                isFirstMessageByAuthor = isFirstMessageByAuthor,
+                isLastMessageByAuthor = isLastMessageByAuthor,
+                authorClicked = onAuthorClick,
                 modifier = Modifier
-                    .clickable(onClick = { onAuthorClick(msg.author) })
-                    .padding(horizontal = 16.dp)
-                    .size(42.dp)
-                    .border(1.5.dp, borderColor, CircleShape)
-                    .border(3.dp, MaterialTheme.colorScheme.surface, CircleShape)
-                    .clip(CircleShape)
-                    .align(Alignment.Top),
-                painter = painterResource(id = msg.authorImage),
-                contentScale = ContentScale.Crop,
-                contentDescription = null,
+                    .padding(end = 16.dp)
+                    .weight(1f)
             )
-        } else {
-            // Space under avatar
-            Spacer(modifier = Modifier.width(74.dp))
         }
-        AuthorAndTextMessage(
-            msg = msg,
-            isUserMe = isUserMe,
-            isFirstMessageByAuthor = isFirstMessageByAuthor,
-            isLastMessageByAuthor = isLastMessageByAuthor,
-            authorClicked = onAuthorClick,
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .weight(1f)
-        )
+
+        if (isFirstMessageByAuthor)
+        {
+            Row{
+                Icon(
+                    Icons.Filled.Favorite,
+                    contentDescription = "喜欢",
+                    modifier = Modifier
+                        .clickable(onClick = { })
+                        .padding(horizontal = ButtonDefaults.IconSize)
+                        .size(ButtonDefaults.IconSize))
+                Text("${msg.likecount}")
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing * 5))
+                Icon(
+                    Icons.Filled.Comment,
+                    contentDescription = "评论",
+                    modifier = Modifier
+                        .clickable(onClick = { })
+                        .padding(horizontal = ButtonDefaults.IconSize)
+                        .size(ButtonDefaults.IconSize))
+                Text("${msg.commentcount}")
+            }
+        }
     }
+
+
 }
 
 @Composable

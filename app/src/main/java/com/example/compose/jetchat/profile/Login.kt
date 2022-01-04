@@ -30,8 +30,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.compose.jetchat.R
 import com.example.compose.jetchat.api_host
 import com.example.compose.jetchat.conversation.UserInputText
+import com.example.compose.jetchat.data.meProfile
 import com.example.compose.jetchat.ktorClient
 import com.example.compose.jetchat.theme.JetchatTheme
 import com.google.accompanist.insets.ProvideWindowInsets
@@ -107,6 +109,18 @@ fun LoginScreen(afterLogin: () -> Unit) {
                                             ignoreUnknownKeys = true
                                         }.decodeFromString<tokenResponse>(r)
                                         AccessToken = res.access_token
+                                        meProfile = ProfileScreenState(
+                                            userId = username.text,
+                                            photo = R.drawable.ali,
+                                            name = username.text,
+                                            displayName = username.text,
+                                            position="",
+                                            status="",
+                                            twitter = "twitter.com/aliconors",
+                                            timeZone = "",
+                                            commonChannels = null
+                                        )
+
                                         UserName = username.text
                                         Toast.makeText(ctx, "登录成功$AccessToken", Toast.LENGTH_LONG)
                                             .show()

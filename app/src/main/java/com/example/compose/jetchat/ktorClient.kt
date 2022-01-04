@@ -24,6 +24,7 @@ import java.util.*
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.features.DefaultRequest
+import io.ktor.client.features.cookies.*
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
 import io.ktor.client.features.logging.Logging
@@ -65,6 +66,10 @@ val ktorClient = HttpClient(Android){
         onResponse { response ->
 //            Log.d("HTTP status:", "${response.status.value}")
         }
+    }
+    install(HttpCookies) {
+        // Will keep an in-memory map with all the cookies from previous requests.
+        storage = AcceptAllCookiesStorage()
     }
     install(DefaultRequest) {
         header(HttpHeaders.ContentType, ContentType.Application.Json)

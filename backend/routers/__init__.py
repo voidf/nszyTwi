@@ -80,7 +80,7 @@ class new_twi_form(BaseModel):
     Depends(validsign)
 ])
 async def new_twi(f: new_twi_form):
-    t = Twi(author=g().user, content=f.content).save()
+    t = Twi(author=g().user, content=f.content, post_time=int(datetime.datetime.now().timestamp())).save()
     return trueReturn()
 
 
@@ -95,7 +95,7 @@ async def comment_twi(f: comment_twi_form):
     tg: Twi = Twi.objects(pk=f.tid).first()
     if not tg:
         return falseReturn(404, '找不到待评论推文')
-    t = Twi(author=g().user, content=f.content, is_top=False).save()
+    t = Twi(author=g().user, content=f.content, is_top=False, post_time=int(datetime.datetime.now().timestamp())).save()
     tg.comments.append(t)
     tg.save()
     return trueReturn()
@@ -106,7 +106,7 @@ async def comment_twi(f: comment_twi_form):
 async def all_twi():
     return trueReturn(
         data={
-            'twis':[i.get_base_info() for i in Twi.objects(is_top=True)]
+            'twis':[i.get_base_info() for i in Twi.objects(is_top=True).order_by('post_time')]
         }
     )
 
@@ -117,7 +117,7 @@ async def follows_twi():
     fos = g().user.follows
     return trueReturn(
         data={
-            'twis':[i.get_base_info() for i in Twi.objects(author__in=fos, is_top=True)]
+            'twis':[i.get_base_info() for i in Twi.objects(author__in=fos, is_top=True).order_by('post_time')]
         }
     )
 
@@ -130,7 +130,7 @@ async def user_twi(uid: str):
         return falseReturn(404, '找不到给定用户')
     return trueReturn(
         data={
-            'twis':[i.get_base_info() for i in Twi.objects(author=a, is_top=True)]
+            'twis':[i.get_base_info() for i in Twi.objects(author=a, is_top=True).order_by('post_time')]
         }
     )
 

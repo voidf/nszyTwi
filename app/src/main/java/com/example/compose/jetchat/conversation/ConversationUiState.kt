@@ -32,6 +32,11 @@ class ConversationUiState(
     fun addMessage(msg: Message) {
         _messages.add(0, msg) // Add to the beginning of the list
     }
+
+    fun pullMessages(msgs: MutableList<Message>){
+        _messages.clear()
+        for (i in msgs)_messages.add(i)
+    }
 }
 
 @Immutable
@@ -40,5 +45,7 @@ data class Message(
     val content: String,
     val timestamp: String,
     val image: Int? = null,
-    val authorImage: Int = if (author == "me") R.drawable.ali else R.drawable.someone_else
+    val authorImage: Int = if (author == "me") R.drawable.ali else R.drawable.someone_else,
+    val likecount: Int = 0,
+    val commentcount: Int = 0,
 )

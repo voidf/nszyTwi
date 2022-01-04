@@ -84,7 +84,7 @@ val colleagueProfile = ProfileScreenState(
 /**
  * Example "me" profile.
  */
-val meProfile = ProfileScreenState(
+var meProfile = ProfileScreenState(
     userId = "me",
     photo = R.drawable.ali,
     name = "Ali Conors",

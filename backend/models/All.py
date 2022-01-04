@@ -25,3 +25,5 @@ class Twi(Base, Document):
     author = ReferenceField(User, reverse_delete_rule=CASCADE)
     comments = ListField(ReferenceField('Twi', reverse_delete_rule=PULL), default=[])
     is_top = BooleanField(default=True)
+    post_time = IntField()
+    
