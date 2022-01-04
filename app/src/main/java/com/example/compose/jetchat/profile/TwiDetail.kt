@@ -16,22 +16,10 @@
 
 package com.example.compose.jetchat.profile
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Chat
@@ -61,9 +49,7 @@ import com.example.compose.jetchat.R
 import com.example.compose.jetchat.components.AnimatingFabContent
 import com.example.compose.jetchat.components.JetchatAppBar
 import com.example.compose.jetchat.components.baselineHeight
-import com.example.compose.jetchat.conversation.ConversationUiState
-import com.example.compose.jetchat.conversation.Messages
-import com.example.compose.jetchat.conversation.UserInput
+import com.example.compose.jetchat.conversation.*
 import com.example.compose.jetchat.data.colleagueProfile
 import com.example.compose.jetchat.data.exampleUiState
 import com.example.compose.jetchat.data.meProfile
@@ -80,8 +66,10 @@ import kotlinx.coroutines.launch
 fun TwiDetailScreen(
     twidata: SingleTwiData,
     navigateToProfile: (String) -> Unit,
-    uiState: ConversationUiState,
+//    uiState: ConversationUiState,
+    commentsState: List<SingleTwiData>,
     modifier: Modifier = Modifier,
+
     onNavIconPressed: () -> Unit = { },
     onCommentClick: (String) -> Unit = { },
     onLikeClick: (String) -> Unit = { }
@@ -121,37 +109,65 @@ fun TwiDetailScreen(
                 )
             }
         )
+        Surface{
+            Column {
+                Row {
+                    Image(
+                        modifier = Modifier
+                            .clickable(onClick = { navigateToProfile(twidata.author.username) })
+                            .padding(horizontal = 16.dp)
+                            .size(42.dp)
+                            .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                            .border(3.dp, MaterialTheme.colorScheme.surface, CircleShape)
+                            .clip(CircleShape)
+                            .align(Alignment.Top),
+                        painter = painterResource(id = R.drawable.someone_else),
+                        contentScale = ContentScale.Crop,
+                        contentDescription = null,
+                    )
+                    AuthorAndTextMessage(
+                        msg = twidata,
+                        isUserMe = false,
+                        isFirstMessageByAuthor = true,
+                        isLastMessageByAuthor = true,
+                        authorClicked = { navigateToProfile(twidata.author.username) },
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .weight(1f)
+                    )
+                }
+                DayHeader(dayString = "Comments")
+            }
+        }
         BoxWithConstraints(modifier = Modifier.weight(1f)) {
             Surface {
-
-
                 Column(
                     Modifier
                         .fillMaxSize()
                         .nestedScroll(scrollBehavior.nestedScrollConnection)
                 ) {
                     Messages(
-                        messages = uiState.messages,
+                        messages = commentsState,
                         navigateToProfile = navigateToProfile,
                         scrollState = scrollStateLazy,
                         onCommentClick = onCommentClick,
                         onLikeClick = onLikeClick
                     )
-                    UserInput(
-                        onMessageSent = { content ->
-                        },
-                        resetScroll = {
-                        },
-                        modifier = Modifier.navigationBarsWithImePadding(),
-                    )
+
                 }
-
-
             }
-
         }
+        UserInput(
+            onMessageSent = { content ->
+            },
+            resetScroll = {
+            },
+            modifier = Modifier.navigationBarsWithImePadding(),
+        )
     }
 }
+
+
 
 @Preview
 @Composable
@@ -165,7 +181,7 @@ fun tPreview(){
             1145141919
         ),
         navigateToProfile = {},
-        uiState = exampleUiState
+        commentsState = listOf()
     )
 
 }

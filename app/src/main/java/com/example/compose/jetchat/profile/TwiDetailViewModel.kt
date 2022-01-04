@@ -18,6 +18,7 @@ package com.example.compose.jetchat.profile
 
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -25,6 +26,7 @@ import com.example.compose.jetchat.SingleTwiData
 import com.example.compose.jetchat.data.colleagueProfile
 import com.example.compose.jetchat.data.meProfile
 import com.example.compose.jetchat.*
+import com.example.compose.jetchat.data.exampleUiState
 import com.example.compose.jetchat.data.useryaya
 import io.ktor.client.request.*
 
@@ -42,10 +44,19 @@ class TwiDetailViewModel : ViewModel() {
     suspend fun upd() {
         val r = ktorClient.get<Resp<SingleTwiData>>("$api_host/twi/detail?tid=$tid")
         _twidata.value = r.data!!
+        _comments.clear()
+        if (r.data.comments != null) {
+            for (i in r.data.comments){
+                _comments.add(i)
+            }
+        }
     }
 
     private val _twidata = MutableLiveData<SingleTwiData>(sampleTwi)
+
+    private val _comments: MutableList<SingleTwiData> = mutableStateListOf(*exampleUiState.messages.toTypedArray())
     val twidata: LiveData<SingleTwiData> = _twidata
+    val comments: List<SingleTwiData> = _comments
 }
 
 val sampleTwi = SingleTwiData(

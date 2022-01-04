@@ -70,6 +70,7 @@ class TwiDetailFragment : Fragment() {
         setContent {
             val twiData by viewModel.twidata.observeAsState()
 
+
             CompositionLocalProvider(LocalWindowInsets provides windowInsets) {
                 JetchatTheme {
                     if (twiData == null) {
@@ -91,15 +92,15 @@ class TwiDetailFragment : Fragment() {
                             onNavIconPressed = {
                                 activityViewModel.openDrawer()
                             },
-                            uiState = exampleUiState,
-                                modifier = Modifier.navigationBarsPadding(bottom = false),
-                                onCommentClick = { tid ->
-                                    val bundle = bundleOf("tid" to tid)
-                                    findNavController().navigate(
-                                        R.id.nav_detail,
-                                        bundle
-                                    )
-                                },
+                            commentsState = viewModel.comments,
+                            modifier = Modifier.navigationBarsPadding(bottom = false),
+                            onCommentClick = { tid ->
+                                val bundle = bundleOf("tid" to tid)
+                                findNavController().navigate(
+                                    R.id.nav_detail,
+                                    bundle
+                                )
+                            },
                         )
                     }
                 }
