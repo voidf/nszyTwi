@@ -81,7 +81,14 @@ class ConversationFragment : Fragment() {
                         },
                         // Add padding so that we are inset from any left/right navigation bars
                         // (usually shown when in landscape orientation)
-                        modifier = Modifier.navigationBarsPadding(bottom = false)
+                        modifier = Modifier.navigationBarsPadding(bottom = false),
+                        onCommentClick = { tid ->
+                            val bundle = bundleOf("tid" to tid)
+                            findNavController().navigate(
+                                R.id.nav_detail,
+                                bundle
+                            )
+                        },
                     )
                 }
             }

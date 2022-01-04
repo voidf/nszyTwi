@@ -32,8 +32,8 @@ import io.ktor.client.features.logging.Logger
 import io.ktor.client.features.logging.LogLevel
 import io.ktor.client.features.observer.ResponseObserver
 import io.ktor.client.request.*
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import io.ktor.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -76,6 +76,83 @@ val ktorClient = HttpClient(Android){
     }
 }
 val api_host = "http://4kr.top:8588"
+
+@kotlinx.serialization.Serializable
+data class Resp<T>(
+    val data: T,
+    val msg: String,
+    val status: Boolean
+)
+
+@kotlinx.serialization.Serializable
+data class UserData(
+    val username: String,
+    val avatar: String? = null,
+    val desc: String? = null,
+    val follows: List<UserData>? = null
+)
+
+@kotlinx.serialization.Serializable
+data class SingleTwiData(
+    val id: String,
+    val content: String,
+    val author: UserData,
+    val is_top: Boolean,
+    val post_time: Long,
+    val comments: List<SingleTwiData>? = null
+)
+
+
+
+suspend fun getAllTwi(): MutableList<SingleTwiData> {
+    try {
+        val r = ktorClient.get<Resp<List<SingleTwiData>>>("$api_host/twi/all")
+        val li = mutableListOf<SingleTwiData>(*r.data.toTypedArray())
+        Log.d("<<<suc>>>", "${r.data}")
+        return li
+    } catch (e: Exception) {
+        Log.d("【req】", "$e")
+        throw e
+    }
+}
+@kotlinx.serialization.Serializable
+data class NewTwiForm(
+    val content: String,
+)
+
+suspend fun sendTwi(content: String){
+    try {
+        val r: HttpResponse = ktorClient.post("$api_host/twi/new"){
+            body=NewTwiForm(content)
+        }
+        if (r.status != HttpStatusCode.Accepted)
+        {
+            Log.d("【sendTwi】[${r.status.value}]", r.content.toString())
+        }
+    } catch (e: Exception){
+        Log.d("【sendTwi】Error!", e.toString())
+    }
+}
+@kotlinx.serialization.Serializable
+data class CommentTwiForm(
+    val content: String,
+    val tid: String
+)
+
+suspend fun sendComment(content: String, tid: String){
+    try {
+        val r: HttpResponse = ktorClient.post("$api_host/twi/comment"){
+            body=CommentTwiForm(content, tid)
+        }
+        if (r.status != HttpStatusCode.Accepted) {
+            Log.d("【sendTwi】[${r.status.value}]", r.content.toString())
+        }
+    } catch (e: Exception){
+        Log.d("【sendTwi】Error!", e.toString())
+    }
+}
+
+
 
 //class Result<T> (x: T?, status: Int){
 //    companion object{

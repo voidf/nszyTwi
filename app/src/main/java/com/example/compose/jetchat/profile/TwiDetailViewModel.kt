@@ -21,9 +21,11 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.compose.jetchat.conversation.SingleTwiData
+import com.example.compose.jetchat.SingleTwiData
 import com.example.compose.jetchat.data.colleagueProfile
 import com.example.compose.jetchat.data.meProfile
+import com.example.compose.jetchat.*
+import io.ktor.client.request.*
 
 class TwiDetailViewModel : ViewModel() {
 
@@ -34,8 +36,8 @@ class TwiDetailViewModel : ViewModel() {
             return
         }
         tid = newtid
-        val r = ktorClient.get<Resp<>>
-
+        val r = ktorClient.get<Resp<SingleTwiData>>("$api_host/twi/detail?tid=$tid")
+        _twidata.value = r.data!!
     }
 
     private val _twidata = MutableLiveData<SingleTwiData>()

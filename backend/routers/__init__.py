@@ -105,7 +105,7 @@ async def comment_twi(f: comment_twi_form):
 ])
 async def all_twi():
     return trueReturn(
-        data=[i.get_base_info() for i in Twi.objects(is_top=True).order_by('post_time')]
+        data=[i.get_base_info() for i in Twi.objects(is_top=True).order_by('-post_time')]
     )
 
 @master_router.get('/twi/follows', dependencies=[
@@ -114,7 +114,7 @@ async def all_twi():
 async def follows_twi():
     fos = g().user.follows
     return trueReturn(
-        data=[i.get_base_info() for i in Twi.objects(author__in=fos, is_top=True).order_by('post_time')]
+        data=[i.get_base_info() for i in Twi.objects(author__in=fos, is_top=True).order_by('-post_time')]
     )
 
 @master_router.get('/twi/user', dependencies=[
@@ -125,7 +125,7 @@ async def user_twi(uid: str):
     if not a:
         return falseReturn(404, '找不到给定用户')
     return trueReturn(
-        data=[i.get_base_info() for i in Twi.objects(author=a, is_top=True).order_by('post_time')]
+        data=[i.get_base_info() for i in Twi.objects(author=a, is_top=True).order_by('-post_time')]
     )
 
 @master_router.get('/twi/detail', dependencies=[

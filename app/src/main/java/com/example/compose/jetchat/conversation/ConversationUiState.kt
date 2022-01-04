@@ -16,36 +16,62 @@
 
 package com.example.compose.jetchat.conversation
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.mutableStateListOf
-import com.example.compose.jetchat.R
+import com.example.compose.jetchat.*
+import io.ktor.client.request.*
 
 class ConversationUiState(
     val channelName: String,
     val channelMembers: Int,
-    initialMessages: List<Message>
+    initialMessages: List<SingleTwiData>
 ) {
-    private val _messages: MutableList<Message> =
+    private val _messages: MutableList<SingleTwiData> =
         mutableStateListOf(*initialMessages.toTypedArray())
-    val messages: List<Message> = _messages
+    val messages: List<SingleTwiData> = _messages
 
-    fun addMessage(msg: Message) {
+    fun addMessage(msg: SingleTwiData) {
         _messages.add(0, msg) // Add to the beginning of the list
     }
 
-    fun pullMessages(msgs: MutableList<Message>){
+    suspend fun <T> tryUpdateData(typ: String, bdy: T){
+        try {
+            val r = ktorClient.post<Resp<List<SingleTwiData>>>("$api_host/twi/$typ")
+            {
+                body=bdy!!
+            }
+            _messages.clear()
+            for (i in r.data)_messages.add(i)
+        } catch (e: Exception) {
+            Log.d("【UiState】Error!", e.toString())
+        }
+    }
+
+    suspend fun tryUpdateData(typ: String = "all"){
+        try {
+            val r = ktorClient.get<Resp<List<SingleTwiData>>>("$api_host/twi/$typ")
+            _messages.clear()
+            for (i in r.data)_messages.add(i)
+        } catch (e: Exception) {
+            Log.d("【UiState】Error!", e.toString())
+        }
+    }
+
+    fun pullMessages(msgs: MutableList<SingleTwiData>){
         _messages.clear()
         for (i in msgs)_messages.add(i)
     }
 }
 
-@Immutable
-data class Message(
-    val author: String,
-    val content: String,
-    val timestamp: String,
-    val image: Int? = null,
-    val authorImage: Int = if (author == "me") R.drawable.ali else R.drawable.someone_else,
-    val likecount: Int = 0,
-    val commentcount: Int = 0,
-)
+//@Immutable
+//data class Message(
+//    val author: String,
+//    val content: String,
+//    val timestamp: String,
+//    val image: Int? = null,
+//    val authorImage: Int = if (author == "me") R.drawable.ali else R.drawable.someone_else,
+//    val likecount: Int = 0,
+//    val commentcount: Int = 0,
+//)

@@ -72,6 +72,10 @@ import io.ktor.client.request.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 /**
  * Entry point for a conversation screen.
@@ -87,57 +91,18 @@ import kotlinx.serialization.json.Json
 //    return produceState(initialValue = Result.Loading(1), producer = )
 //}
 
-@kotlinx.serialization.Serializable
-data class Resp<T>(
-    val data: T,
-    val msg: String,
-    val status: Boolean
-)
-
-@kotlinx.serialization.Serializable
-data class UserData(
-    val username: String,
-    val avatar: String? = null,
-    val desc: String? = null,
-    val follows: List<UserData>? = null
-)
 
 
-@kotlinx.serialization.Serializable
-data class SingleTwiData(
-    val id: String,
-    val content: String,
-    val author: UserData,
-    val is_top: Boolean,
-    val post_time: Long,
-    val comments: List<SingleTwiData>? = null
-)
-
-@kotlinx.serialization.Serializable
-data class AllTwiData(
-    val twis: List<SingleTwiData>
-)
-
-suspend fun getAllTwi(): MutableList<Message> {
-    try {
-        val r = ktorClient.get<Resp<AllTwiData>>("$api_host/twi/all")
-        val li = mutableListOf<com.example.compose.jetchat.conversation.Message>()
-        for (i in r.data.twis) {
-            li.add(
-                com.example.compose.jetchat.conversation.Message(
-                    i.author.username,
-                    i.content,
-                    "${i.post_time}"
-                )
-            )
-        }
-        Log.d("<<<suc>>>", "${r.data.twis}")
-        return li
-    } catch (e: Exception) {
-        Log.d("【req】", "$e")
-        throw e;
-    }
+fun ts2str(ts: Long): String {
+    return LocalDateTime.ofInstant(
+        Instant.ofEpochSecond(ts),
+        TimeZone.getDefault().toZoneId()).format(
+            DateTimeFormatter.ofPattern("MM.dd HH:mm")
+    );
 }
+
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -145,7 +110,9 @@ fun ConversationContent(
     uiState: ConversationUiState,
     navigateToProfile: (String) -> Unit,
     modifier: Modifier = Modifier,
-    onNavIconPressed: () -> Unit = { }
+    onNavIconPressed: () -> Unit = { },
+    onCommentClick: (String) -> Unit = { },
+    onLikeClick: (String) -> Unit = { }
 ) {
 
     val authorMe = stringResource(R.string.author_me)
@@ -159,11 +126,7 @@ fun ConversationContent(
 
 
     LaunchedEffect(Unit) {
-        try {
-            uiState.pullMessages(getAllTwi())
-        } catch (e: Exception) {
-            Toast.makeText(ctx, e.toString(), Toast.LENGTH_LONG).show()
-        }
+        uiState.tryUpdateData()
     }
 
     Surface(modifier = modifier) {
@@ -178,13 +141,20 @@ fun ConversationContent(
                     messages = uiState.messages,
                     navigateToProfile = navigateToProfile,
                     modifier = Modifier.weight(1f),
-                    scrollState = scrollState
+                    scrollState = scrollState,
+                    onLikeClick = onLikeClick,
+                    onCommentClick = onCommentClick
                 )
                 UserInput(
                     onMessageSent = { content ->
-                        uiState.addMessage(
-                            Message(authorMe, content, timeNow)
-                        )
+                        scope.launch {
+                            sendTwi(content)
+                            uiState.tryUpdateData()
+                        }
+
+//                        uiState.addMessage(
+//                            SingleTwiData(authorMe, content, timeNow)
+//                        )
                     },
                     resetScroll = {
                         scope.launch {
@@ -292,10 +262,12 @@ const val ConversationTestTag = "ConversationTestTag"
 
 @Composable
 fun Messages(
-    messages: List<Message>,
+    messages: List<SingleTwiData>,
     navigateToProfile: (String) -> Unit,
     scrollState: LazyListState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onCommentClick: (String) -> Unit,
+    onLikeClick: (String) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     Box(modifier = modifier) {
@@ -337,9 +309,11 @@ fun Messages(
                     Message(
                         onAuthorClick = { name -> navigateToProfile(name) },
                         msg = content,
-                        isUserMe = content.author == authorMe,
+                        isUserMe = false,
                         isFirstMessageByAuthor = true,
-                        isLastMessageByAuthor = true
+                        isLastMessageByAuthor = true,
+                        onCommentClick = onCommentClick,
+                        onLikeClick = onLikeClick,
                     )
                 }
             }
@@ -375,11 +349,14 @@ fun Messages(
 @Composable
 fun Message(
     onAuthorClick: (String) -> Unit,
-    msg: Message,
+    msg: SingleTwiData,
     isUserMe: Boolean,
     isFirstMessageByAuthor: Boolean,
-    isLastMessageByAuthor: Boolean
+    isLastMessageByAuthor: Boolean,
+    onCommentClick: (String) -> Unit,
+    onLikeClick: (String) -> Unit = {},
 ) {
+//    val scope = rememberCoroutineScope()
     val borderColor = if (isUserMe) {
         MaterialTheme.colorScheme.primary
     } else {
@@ -394,14 +371,14 @@ fun Message(
                 // Avatar
                 Image(
                     modifier = Modifier
-                        .clickable(onClick = { onAuthorClick(msg.author) })
+                        .clickable(onClick = { onAuthorClick(msg.author.username) })
                         .padding(horizontal = 16.dp)
                         .size(42.dp)
                         .border(1.5.dp, borderColor, CircleShape)
                         .border(3.dp, MaterialTheme.colorScheme.surface, CircleShape)
                         .clip(CircleShape)
                         .align(Alignment.Top),
-                    painter = painterResource(id = msg.authorImage),
+                    painter = painterResource(id = R.drawable.someone_else),
                     contentScale = ContentScale.Crop,
                     contentDescription = null,
                 )
@@ -428,19 +405,24 @@ fun Message(
                     Icons.Filled.Favorite,
                     contentDescription = "喜欢",
                     modifier = Modifier
-                        .clickable(onClick = { })
+                        .clickable(onClick = { onLikeClick(msg.id) })
                         .padding(horizontal = ButtonDefaults.IconSize)
                         .size(ButtonDefaults.IconSize))
-                Text("${msg.likecount}")
+                Text("0")
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing * 5))
                 Icon(
                     Icons.Filled.Comment,
                     contentDescription = "评论",
                     modifier = Modifier
-                        .clickable(onClick = { })
+                        .clickable(onClick = { onCommentClick(msg.id) })
                         .padding(horizontal = ButtonDefaults.IconSize)
                         .size(ButtonDefaults.IconSize))
-                Text("${msg.commentcount}")
+                if (msg.comments == null){
+                    Text("0")
+                }
+                else {
+                    Text("${msg.comments.size}")
+                }
             }
         }
     }
@@ -450,7 +432,7 @@ fun Message(
 
 @Composable
 fun AuthorAndTextMessage(
-    msg: Message,
+    msg: SingleTwiData,
     isUserMe: Boolean,
     isFirstMessageByAuthor: Boolean,
     isLastMessageByAuthor: Boolean,
@@ -473,11 +455,11 @@ fun AuthorAndTextMessage(
 }
 
 @Composable
-private fun AuthorNameTimestamp(msg: Message) {
+private fun AuthorNameTimestamp(msg: SingleTwiData) {
     // Combine author and timestamp for a11y.
     Row(modifier = Modifier.semantics(mergeDescendants = true) {}) {
         Text(
-            text = msg.author,
+            text = msg.author.username,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier
                 .alignBy(LastBaseline)
@@ -485,7 +467,7 @@ private fun AuthorNameTimestamp(msg: Message) {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = msg.timestamp,
+            text = ts2str(msg.post_time),
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.alignBy(LastBaseline),
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -526,7 +508,7 @@ private fun RowScope.DayHeaderLine() {
 
 @Composable
 fun ChatItemBubble(
-    message: Message,
+    message: SingleTwiData,
     isUserMe: Boolean,
     authorClicked: (String) -> Unit
 ) {
@@ -549,26 +531,26 @@ fun ChatItemBubble(
             )
         }
 
-        message.image?.let {
-            Spacer(modifier = Modifier.height(4.dp))
-            Surface(
-                color = backgroundBubbleColor,
-                shape = ChatBubbleShape
-            ) {
-                Image(
-                    painter = painterResource(it),
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(160.dp),
-                    contentDescription = stringResource(id = R.string.attached_image)
-                )
-            }
-        }
+//        message.image?.let {
+//            Spacer(modifier = Modifier.height(4.dp))
+//            Surface(
+//                color = backgroundBubbleColor,
+//                shape = ChatBubbleShape
+//            ) {
+//                Image(
+//                    painter = painterResource(it),
+//                    contentScale = ContentScale.Fit,
+//                    modifier = Modifier.size(160.dp),
+//                    contentDescription = stringResource(id = R.string.attached_image)
+//                )
+//            }
+//        }
     }
 }
 
 @Composable
 fun ClickableMessage(
-    message: Message,
+    message: SingleTwiData,
     isUserMe: Boolean,
     authorClicked: (String) -> Unit
 ) {

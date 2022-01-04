@@ -17,10 +17,12 @@
 package com.example.compose.jetchat.data
 
 import com.example.compose.jetchat.R
+import com.example.compose.jetchat.SingleTwiData
+import com.example.compose.jetchat.UserData
 import com.example.compose.jetchat.conversation.ConversationUiState
 import com.example.compose.jetchat.conversation.Message
 import com.example.compose.jetchat.profile.ProfileScreenState
-
+/*
 private val initialMessages = listOf(
     Message(
         "me",
@@ -58,6 +60,62 @@ private val initialMessages = listOf(
             "data and emit composable widgets?",
         "8:03 PM"
     )
+)
+*/
+val useryaya = UserData("yaya", "yaya_avatar", "Y")
+val userirori = UserData("irori", "irori_avatar", "I")
+val userkomurasaki = UserData("komurasaki", "komurasaki_avatar", "K")
+
+private val initialMessages = listOf(
+    SingleTwiData(
+        "1",
+        "Check it out!",
+        useryaya,
+        true,
+        1641295619
+    ),
+    SingleTwiData(
+        "2",
+        "Thank you!",
+        useryaya,
+        true,
+        1641295639
+    ),
+
+    SingleTwiData(
+        "3",
+        "You can use all the same stuff",
+        userirori,
+        true,
+        1641295659
+    ),
+    SingleTwiData(
+        "4",
+        "@aliconors Take a look at the `Flow.collectAsState()` APIs",
+        userirori,
+        true,
+        1641295759
+    ),
+    SingleTwiData(
+        "5",
+        "Compose newbie as well, have you looked at the JetNews sample? Most blog posts end up " +
+                "out of date pretty fast but this sample is always up to date and deals with async " +
+                "data loading (it's faked but the same idea applies) \uD83D\uDC49" +
+                "https://github.com/android/compose-samples/tree/master/JetNews",
+        userkomurasaki,
+        true,
+        1641298859
+    ),
+    SingleTwiData(
+        "6",
+        "Compose newbie: I’ve scourged the internet for tutorials about async data loading " +
+                "but haven’t found any good ones. What’s the recommended way to load async " +
+                "data and emit composable widgets?",
+        useryaya,
+        true,
+        1641299859
+    ),
+
 )
 
 val exampleUiState = ConversationUiState(

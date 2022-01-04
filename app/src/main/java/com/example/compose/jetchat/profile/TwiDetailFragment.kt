@@ -55,9 +55,6 @@ class TwiDetailFragment : Fragment() {
             ViewGroup.LayoutParams.MATCH_PARENT
         )
 
-        // Create a ViewWindowInsetObserver using this view, and call start() to
-        // start listening now. The WindowInsets instance is returned, allowing us to
-        // provide it to AmbientWindowInsets in our content below.
         val windowInsets = ViewWindowInsetObserver(this).start()
 
         setContent {
