@@ -15,6 +15,25 @@ class User(Base, Document):
     @classmethod
     def trychk(cls, pk):
         return super().trychk(pk)
+
+    def get_base_info_excluded(self):
+        return {
+            'id': self.username,
+            'username': self.username,
+            'avatar': self.avatar,
+            'desc': self.desc
+        }
+
+    def get_base_info(self, depth=0, *args):
+        d = self.get_base_info_excluded()
+        d['follows'] = [i.get_base_info_excluded() for i in self.follows]
+        return d
+
+    def get_all_info(self, depth=0, *args):
+        d = self.get_base_info_excluded()
+        d['follows'] = [i.get_base_info_excluded() for i in self.follows]
+        return d
+
     # def __int__(self):
     #     return int(self.username)
     def __str__(self):

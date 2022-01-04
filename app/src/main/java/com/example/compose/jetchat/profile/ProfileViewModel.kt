@@ -34,23 +34,32 @@ class ProfileViewModel : ViewModel() {
 
 
     fun setUserId(newUserId: String?) {
+
+
         if (newUserId != userId) {
             userId = newUserId ?: meProfile.userId
+//            colleagueProfile.userId = userId
+//            colleagueProfile.displayName = userId
         }
+
         // Workaround for simplicity
+
         _userData.value = if (userId == meProfile.userId || userId == meProfile.displayName) {
             meProfile
         } else {
             colleagueProfile
         }
+        _userData.value!!.userId = newUserId?:userId
+        _userData.value!!.name = newUserId?:userId
+        _userData.value!!.displayName = newUserId?:userId
     }
 
     suspend fun upd() {
         val othersdata = getUser(userId)
         _userDetailedInfo.value = othersdata
         val mydata = getUser(meProfile.userId)
-        _userData.value!!.name = mydata.username
-        _userData.value!!.userId = mydata.username
+        _userData.value!!.name = othersdata.username
+        _userData.value!!.userId = othersdata.username
         _is_followed.value = false
         if(mydata.follows!=null)
         {
@@ -77,7 +86,7 @@ data class ProfileScreenState(
     @DrawableRes val photo: Int?,
     var name: String,
     val status: String,
-    val displayName: String,
+    var displayName: String,
     val position: String,
     val twitter: String = "",
     val timeZone: String?, // Null if me
