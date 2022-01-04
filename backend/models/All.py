@@ -26,4 +26,5 @@ class Twi(Base, Document):
     comments = ListField(ReferenceField('Twi', reverse_delete_rule=PULL), default=[])
     is_top = BooleanField(default=True)
     post_time = IntField()
+    # attachments = ListField()
     
