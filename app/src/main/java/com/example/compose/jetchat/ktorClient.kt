@@ -155,7 +155,7 @@ suspend fun sendComment(content: String, tid: String){
 
 suspend fun sendFo(uid: String): String{
     try {
-        val r = ktorClient.get<Resp<Nothing>>("$api_host/user/fo?uid=$uid")
+        val r = ktorClient.get<Resp<String?>>("$api_host/user/fo?uid=$uid")
         return r.msg
     } catch (e: Exception){
         Log.d("【sendFo】Error!", e.toString())
@@ -165,7 +165,7 @@ suspend fun sendFo(uid: String): String{
 
 suspend fun sendUnfo(uid: String): String{
     try {
-        val r = ktorClient.get<Resp<Nothing>>("$api_host/user/unfo?uid=$uid")
+        val r = ktorClient.get<Resp<String?>>("$api_host/user/unfo?uid=$uid")
         return r.msg
     } catch (e: Exception){
         Log.d("【sendUnfo】Error!", e.toString())
