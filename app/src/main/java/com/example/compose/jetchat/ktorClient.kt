@@ -19,6 +19,7 @@ import androidx.compose.runtime.produceState
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import com.example.compose.jetchat.data.errorUserData
 import kotlinx.coroutines.runBlocking
 import java.util.*
 import io.ktor.client.HttpClient
@@ -145,12 +146,45 @@ suspend fun sendComment(content: String, tid: String){
             body=CommentTwiForm(content, tid)
         }
         if (r.status != HttpStatusCode.Accepted) {
-            Log.d("【sendTwi】[${r.status.value}]", r.content.toString())
+            Log.d("【sendComment】[${r.status.value}]", r.content.toString())
         }
     } catch (e: Exception){
-        Log.d("【sendTwi】Error!", e.toString())
+        Log.d("【sendComment】Error!", e.toString())
     }
 }
+
+suspend fun sendFo(uid: String){
+    try {
+        val r: HttpResponse = ktorClient.get("$api_host/user/fo?uid=$uid")
+        if (r.status != HttpStatusCode.Accepted) {
+            Log.d("【sendFo】[${r.status.value}]", r.content.toString())
+        }
+    } catch (e: Exception){
+        Log.d("【sendFo】Error!", e.toString())
+    }
+}
+
+suspend fun sendUnfo(uid: String){
+    try {
+        val r: HttpResponse = ktorClient.get("$api_host/user/unfo?uid=$uid")
+        if (r.status != HttpStatusCode.Accepted) {
+            Log.d("【sendUnfo】[${r.status.value}]", r.content.toString())
+        }
+    } catch (e: Exception){
+        Log.d("【sendUnfo】Error!", e.toString())
+    }
+}
+
+suspend fun getUser(uid: String): UserData {
+    try {
+        val r = ktorClient.get<Resp<UserData>>("$api_host/user/profile?uid=$uid")
+        return r.data
+    } catch (e: Exception){
+        Log.d("【getUser】Error!", e.toString())
+        return errorUserData
+    }
+}
+
 
 
 

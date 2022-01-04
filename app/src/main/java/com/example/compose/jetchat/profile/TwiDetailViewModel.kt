@@ -38,7 +38,7 @@ class TwiDetailViewModel : ViewModel() {
             return
         }
         tid = newtid
-        _twidata.value = sampleTwi
+//        _twidata.value = sampleTwi
     }
 
     suspend fun upd() {

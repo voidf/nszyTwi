@@ -21,17 +21,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.example.compose.jetchat.MainViewModel
+import com.example.compose.jetchat.sendFo
+import com.example.compose.jetchat.sendUnfo
 import com.example.compose.jetchat.theme.JetchatTheme
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.ViewWindowInsetObserver
+import kotlinx.coroutines.launch
 
 class ProfileFragment : Fragment() {
 
@@ -60,20 +67,41 @@ class ProfileFragment : Fragment() {
         // provide it to AmbientWindowInsets in our content below.
         val windowInsets = ViewWindowInsetObserver(this).start()
 
+
         setContent {
             val userData by viewModel.userData.observeAsState()
+            val isFollowed by viewModel.is_followed.observeAsState()
 
             CompositionLocalProvider(LocalWindowInsets provides windowInsets) {
                 JetchatTheme {
+                    val scope = rememberCoroutineScope()
+                    val ctx = LocalContext.current
                     if (userData == null) {
                         ProfileError()
                     } else {
+                        LaunchedEffect(Unit) {
+                            viewModel.upd()
+                        }
                         ProfileScreen(
                             userData = userData!!,
                             onNavIconPressed = {
                                 activityViewModel.openDrawer()
+                            },
+                            isFollowed = isFollowed!!,
+                            onFollowClick = {
+                                scope.launch {
+                                    if(isFollowed!!){
+                                        sendUnfo(userData!!.userId)
+                                        Toast.makeText(ctx, "取关成功", Toast.LENGTH_LONG).show()
+                                    }else{
+                                        sendFo(userData!!.userId)
+                                        Toast.makeText(ctx, "关注成功", Toast.LENGTH_LONG).show()
+                                    }
+                                    viewModel.upd()
+                                }
                             }
                         )
+
                     }
                 }
             }

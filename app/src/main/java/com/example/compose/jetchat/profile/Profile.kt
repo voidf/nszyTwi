@@ -33,9 +33,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -74,7 +76,12 @@ import com.google.accompanist.insets.statusBarsPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(userData: ProfileScreenState, onNavIconPressed: () -> Unit = { }) {
+fun ProfileScreen(
+    userData: ProfileScreenState,
+    isFollowed: Boolean,
+    onFollowClick: () -> Unit,
+    onNavIconPressed: () -> Unit = { }
+) {
 
     var functionalityNotAvailablePopupShown by remember { mutableStateOf(false) }
     if (functionalityNotAvailablePopupShown) {
@@ -127,7 +134,8 @@ fun ProfileScreen(userData: ProfileScreenState, onNavIconPressed: () -> Unit = {
                 extended = scrollState.value == 0,
                 userIsMe = userData.isMe(),
                 modifier = Modifier.align(Alignment.BottomEnd),
-                onFabClicked = { functionalityNotAvailablePopupShown = true }
+                onFabClicked = onFollowClick,
+                isFollowed = isFollowed
             )
         }
     }
@@ -254,11 +262,12 @@ fun ProfileError() {
 fun ProfileFab(
     extended: Boolean,
     userIsMe: Boolean,
+    isFollowed: Boolean,
     modifier: Modifier = Modifier,
     onFabClicked: () -> Unit = { }
 ) {
 
-    key(userIsMe) { // Prevent multiple invocations to execute during composition
+    key(isFollowed) { // Prevent multiple invocations to execute during composition
         FloatingActionButton(
             onClick = onFabClicked,
             modifier = modifier
@@ -271,16 +280,16 @@ fun ProfileFab(
             AnimatingFabContent(
                 icon = {
                     Icon(
-                        imageVector = if (userIsMe) Icons.Outlined.Create else Icons.Outlined.Chat,
+                        imageVector = if (isFollowed) Icons.Filled.Star else Icons.Outlined.Star,
                         contentDescription = stringResource(
-                            if (userIsMe) R.string.edit_profile else R.string.message
+                            if (isFollowed) R.string.unfollow else R.string.follow
                         )
                     )
                 },
                 text = {
                     Text(
                         text = stringResource(
-                            id = if (userIsMe) R.string.edit_profile else R.string.message
+                            id = if (isFollowed) R.string.unfollow else R.string.follow
                         ),
                     )
                 },
@@ -296,7 +305,7 @@ fun ProfileFab(
 fun ConvPreviewLandscapeMeDefault() {
     ProvideWindowInsets(consumeWindowInsets = false) {
         JetchatTheme {
-            ProfileScreen(meProfile)
+            ProfileScreen(meProfile,false, {})
         }
     }
 }
@@ -306,7 +315,8 @@ fun ConvPreviewLandscapeMeDefault() {
 fun ConvPreviewPortraitMeDefault() {
     ProvideWindowInsets(consumeWindowInsets = false) {
         JetchatTheme {
-            ProfileScreen(meProfile)
+            ProfileScreen(meProfile, isFollowed = false, {})
+
         }
     }
 }
@@ -316,7 +326,7 @@ fun ConvPreviewPortraitMeDefault() {
 fun ConvPreviewPortraitOtherDefault() {
     ProvideWindowInsets(consumeWindowInsets = false) {
         JetchatTheme {
-            ProfileScreen(colleagueProfile)
+            ProfileScreen(colleagueProfile, isFollowed = true, {})
         }
     }
 }
@@ -326,7 +336,16 @@ fun ConvPreviewPortraitOtherDefault() {
 fun ProfileFabPreview() {
     ProvideWindowInsets(consumeWindowInsets = false) {
         JetchatTheme {
-            ProfileFab(extended = true, userIsMe = false)
+            ProfileFab(extended = true, userIsMe = false, isFollowed = false)
+        }
+    }
+}
+@Preview
+@Composable
+fun ProfileFabPreview2() {
+    ProvideWindowInsets(consumeWindowInsets = false) {
+        JetchatTheme {
+            ProfileFab(extended = true, userIsMe = false, isFollowed = true)
         }
     }
 }

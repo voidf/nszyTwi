@@ -35,7 +35,7 @@ async def register(f: login_form):
         return trueReturn()
     return falseReturn(400, '用户名被占用')
 
-@master_router.post('/user/profile', dependencies=[
+@master_router.get('/user/profile', dependencies=[
     Depends(validsign)
 ])
 async def profile(uid: str):

@@ -26,7 +26,7 @@ import com.example.compose.jetchat.theme.JetchatTheme
 @Composable
 fun ProfilePreview340() {
     JetchatTheme {
-        ProfileScreen(meProfile)
+        ProfileScreen(meProfile, false, {})
     }
 }
 
@@ -34,7 +34,7 @@ fun ProfilePreview340() {
 @Composable
 fun ProfilePreview480Me() {
     JetchatTheme {
-        ProfileScreen(meProfile)
+        ProfileScreen(meProfile, false, {})
     }
 }
 
@@ -42,14 +42,14 @@ fun ProfilePreview480Me() {
 @Composable
 fun ProfilePreview480Other() {
     JetchatTheme {
-        ProfileScreen(colleagueProfile)
+        ProfileScreen(colleagueProfile, false, {})
     }
 }
 @Preview(widthDp = 340, name = "340 width - Me - Dark")
 @Composable
 fun ProfilePreview340MeDark() {
     JetchatTheme(isDarkTheme = true) {
-        ProfileScreen(meProfile)
+        ProfileScreen(meProfile, false, {})
     }
 }
 
@@ -57,7 +57,7 @@ fun ProfilePreview340MeDark() {
 @Composable
 fun ProfilePreview480MeDark() {
     JetchatTheme(isDarkTheme = true) {
-        ProfileScreen(meProfile)
+        ProfileScreen(meProfile, false, {})
     }
 }
 
@@ -65,6 +65,6 @@ fun ProfilePreview480MeDark() {
 @Composable
 fun ProfilePreview480OtherDark() {
     JetchatTheme(isDarkTheme = true) {
-        ProfileScreen(colleagueProfile)
+        ProfileScreen(colleagueProfile, false, {})
     }
 }

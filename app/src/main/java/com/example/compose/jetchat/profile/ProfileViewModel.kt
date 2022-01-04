@@ -21,12 +21,17 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.compose.jetchat.UserData
 import com.example.compose.jetchat.data.colleagueProfile
+import com.example.compose.jetchat.data.errorUserData
 import com.example.compose.jetchat.data.meProfile
+import com.example.compose.jetchat.getUser
 
 class ProfileViewModel : ViewModel() {
 
     private var userId: String = ""
+
+
 
     fun setUserId(newUserId: String?) {
         if (newUserId != userId) {
@@ -39,6 +44,27 @@ class ProfileViewModel : ViewModel() {
             colleagueProfile
         }
     }
+
+    suspend fun upd() {
+        val othersdata = getUser(userId)
+        _userDetailedInfo.value = othersdata
+        val mydata = getUser(meProfile.userId)
+        _is_followed.value = false
+        if(mydata.follows!=null)
+        {
+            for(i in mydata.follows){
+                if (i.username==userId){
+                    _is_followed.value = true
+                    return
+                }
+            }
+        }
+    }
+    private var _is_followed = MutableLiveData<Boolean>(false)
+    val is_followed: LiveData<Boolean> = _is_followed
+
+    private val _userDetailedInfo = MutableLiveData<UserData>(errorUserData)
+    val userDetailedInfo: LiveData<UserData> = _userDetailedInfo
 
     private val _userData = MutableLiveData<ProfileScreenState>()
     val userData: LiveData<ProfileScreenState> = _userData

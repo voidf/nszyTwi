@@ -132,7 +132,7 @@ val colleagueProfile = ProfileScreenState(
     photo = R.drawable.irori_avatar,
     name = "Irori",
     status = "Away",
-    displayName = "taylor",
+    displayName = "irori",
     position = "Senior Android Dev at Openlane",
     twitter = "twitter.com/taylorbrookscodes",
     timeZone = "12:25 AM local time (Eastern Daylight Time)",
@@ -147,9 +147,15 @@ var meProfile = ProfileScreenState(
     photo = R.drawable.yaya_avatar,
     name = "Yaya",
     status = "Online",
-    displayName = "aliconors",
+    displayName = "yaya",
     position = "Senior Android Dev at Yearin\nGoogle Developer Expert",
     twitter = "twitter.com/aliconors",
     timeZone = "In your timezone",
     commonChannels = null
+)
+
+var errorUserData = UserData(
+    "ERROR!",
+    "ERROR!",
+    "ERROR!",
 )
