@@ -33,6 +33,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.outlined.Create
@@ -280,7 +282,7 @@ fun ProfileFab(
             AnimatingFabContent(
                 icon = {
                     Icon(
-                        imageVector = if (isFollowed) Icons.Filled.Star else Icons.Outlined.Star,
+                        imageVector = if (isFollowed) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         contentDescription = stringResource(
                             if (isFollowed) R.string.unfollow else R.string.follow
                         )

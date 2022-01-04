@@ -17,9 +17,11 @@
 package com.example.compose.jetchat.conversation
 
 import android.util.Log
+import android.util.MutableBoolean
 import android.widget.Toast
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import com.example.compose.jetchat.*
 import io.ktor.client.request.*
 
@@ -32,8 +34,15 @@ class ConversationUiState(
         mutableStateListOf(*initialMessages.toTypedArray())
     val messages: List<SingleTwiData> = _messages
 
+    private val _onlyFollow: MutableList<Boolean> = mutableStateListOf(false)
+    val onlyFollow: List<Boolean> = _onlyFollow
+
     fun addMessage(msg: SingleTwiData) {
         _messages.add(0, msg) // Add to the beginning of the list
+    }
+
+    fun switchOnlyFollow(){
+        _onlyFollow[0] = !_onlyFollow[0]
     }
 
     suspend fun <T> tryUpdateData(typ: String, bdy: T){
@@ -49,8 +58,9 @@ class ConversationUiState(
         }
     }
 
-    suspend fun tryUpdateData(typ: String = "all"){
+    suspend fun tryUpdateData(){
         try {
+            val typ = if (_onlyFollow.first()) "follows" else "all"
             val r = ktorClient.get<Resp<List<SingleTwiData>>>("$api_host/twi/$typ")
             _messages.clear()
             for (i in r.data)_messages.add(i)

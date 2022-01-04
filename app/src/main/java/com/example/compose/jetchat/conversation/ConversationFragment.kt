@@ -22,10 +22,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.Toast
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -66,6 +68,7 @@ class ConversationFragment : Fragment() {
                 LocalWindowInsets provides windowInsets,
             ) {
                 JetchatTheme {
+                    val ctx = LocalContext.current
                     ConversationContent(
                         uiState = exampleUiState,
                         navigateToProfile = { user ->
@@ -89,6 +92,9 @@ class ConversationFragment : Fragment() {
                                 bundle
                             )
                         },
+                        onLikeClick = {
+                            Toast.makeText(ctx, "点赞功能未实装[动画表情:黄豆流汗]", Toast.LENGTH_LONG)
+                        }
                     )
                 }
             }

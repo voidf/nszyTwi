@@ -71,6 +71,7 @@ class ProfileFragment : Fragment() {
         setContent {
             val userData by viewModel.userData.observeAsState()
             val isFollowed by viewModel.is_followed.observeAsState()
+            val myud by viewModel.userDetailedInfo.observeAsState()
 
             CompositionLocalProvider(LocalWindowInsets provides windowInsets) {
                 JetchatTheme {
@@ -91,10 +92,10 @@ class ProfileFragment : Fragment() {
                             onFollowClick = {
                                 scope.launch {
                                     if(isFollowed!!){
-                                        sendUnfo(userData!!.userId)
+                                        sendUnfo(myud!!.username)
                                         Toast.makeText(ctx, "取关成功", Toast.LENGTH_LONG).show()
                                     }else{
-                                        sendFo(userData!!.userId)
+                                        sendFo(myud!!.username)
                                         Toast.makeText(ctx, "关注成功", Toast.LENGTH_LONG).show()
                                     }
                                     viewModel.upd()

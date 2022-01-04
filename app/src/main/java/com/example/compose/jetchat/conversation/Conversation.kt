@@ -31,13 +31,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Comment
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Login
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -180,14 +175,25 @@ fun ConversationContent(
                 onRefreshIconPressed = {
                     scope.launch {
                         try {
-                            uiState.pullMessages(getAllTwi())
+                            uiState.tryUpdateData()
                             Toast.makeText(ctx, "更新成功", Toast.LENGTH_LONG).show()
                         } catch (e: Exception) {
                             Toast.makeText(ctx, e.toString(), Toast.LENGTH_LONG).show()
                         }
                     }
-
-                }
+                },
+                onFoModeClicked = {
+                    scope.launch {
+                        try {
+                            uiState.switchOnlyFollow()
+                            uiState.tryUpdateData()
+                            Toast.makeText(ctx, if(uiState.onlyFollow[0]) "只看关注" else "世界公屏", Toast.LENGTH_LONG).show()
+                        } catch (e: Exception) {
+                            Toast.makeText(ctx, e.toString(), Toast.LENGTH_LONG).show()
+                        }
+                    }
+                },
+                foModeOn = uiState.onlyFollow[0]
             )
         }
     }
@@ -199,8 +205,10 @@ fun ChannelNameBar(
     channelMembers: Int,
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    onNavIconPressed: () -> Unit = { },
-    onRefreshIconPressed: () -> Unit = { },
+    onNavIconPressed: () -> Unit,
+    onRefreshIconPressed: () -> Unit,
+    foModeOn: Boolean,
+    onFoModeClicked: ()->Unit,
 ) {
     var functionalityNotAvailablePopupShown by remember { mutableStateOf(false) }
     val ctx = LocalContext.current
@@ -249,10 +257,10 @@ fun ChannelNameBar(
             )
             // Info icon
             Icon(
-                imageVector = Icons.Outlined.Info,
+                imageVector = if(foModeOn) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
-                    .clickable(onClick = { functionalityNotAvailablePopupShown = true })
+                    .clickable(onClick = onFoModeClicked)
                     .padding(horizontal = 12.dp, vertical = 16.dp)
                     .height(24.dp),
                 contentDescription = stringResource(id = R.string.info)
@@ -405,8 +413,8 @@ fun Message(
         {
             Row{
                 Icon(
-                    Icons.Filled.Favorite,
-                    contentDescription = "喜欢",
+                    Icons.Filled.ThumbUp,
+                    contentDescription = "赞",
                     modifier = Modifier
                         .clickable(onClick = { onLikeClick(msg.id) })
                         .padding(horizontal = ButtonDefaults.IconSize)
@@ -598,7 +606,7 @@ fun ConversationPreview() {
 @Composable
 fun channelBarPrev() {
     JetchatTheme {
-        ChannelNameBar(channelName = "composers", channelMembers = 52)
+        ChannelNameBar(channelName = "composers", channelMembers = 52, onNavIconPressed = {}, onRefreshIconPressed = {}, onFoModeClicked = {} , foModeOn = false)
     }
 }
 

@@ -49,6 +49,8 @@ class ProfileViewModel : ViewModel() {
         val othersdata = getUser(userId)
         _userDetailedInfo.value = othersdata
         val mydata = getUser(meProfile.userId)
+        _userData.value!!.name = mydata.username
+        _userData.value!!.userId = mydata.username
         _is_followed.value = false
         if(mydata.follows!=null)
         {
@@ -66,15 +68,14 @@ class ProfileViewModel : ViewModel() {
     private val _userDetailedInfo = MutableLiveData<UserData>(errorUserData)
     val userDetailedInfo: LiveData<UserData> = _userDetailedInfo
 
-    private val _userData = MutableLiveData<ProfileScreenState>()
+    private val _userData = MutableLiveData<ProfileScreenState>(meProfile)
     val userData: LiveData<ProfileScreenState> = _userData
 }
 
-@Immutable
 data class ProfileScreenState(
-    val userId: String,
+    var userId: String,
     @DrawableRes val photo: Int?,
-    val name: String,
+    var name: String,
     val status: String,
     val displayName: String,
     val position: String,

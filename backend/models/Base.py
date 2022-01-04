@@ -9,16 +9,19 @@ from mongoengine.context_managers import *
 from mongoengine.document import *
 
 INVISIBLE = TypeVar('INVISIBLE')
+depth_limit = 10 # 防止自我引用无限递归炸鸡
 
 class Base():
     """需要和mongoengine的Document多继承配套使用"""
     @staticmethod
-    def expand_mono(obj):
+    def expand_mono(obj, depth):
+        if depth>depth_limit:
+            return None
         if hasattr(obj, 'get_base_info'):
-            return getattr(obj, 'get_base_info')()
+            return getattr(obj, 'get_base_info')(depth=depth+1)
         else:
             return obj
-    def get_base_info(self, *args):
+    def get_base_info(self, depth=0, *args):
         try:
             d = {}
             for k in self._fields_ordered:
@@ -27,9 +30,9 @@ class Base():
                 selfk = getattr(self, k)
                 if isinstance(selfk, list):
                     for i in selfk:
-                        d.setdefault(k, []).append(Base.expand_mono(i))
+                        d.setdefault(k, []).append(Base.expand_mono(i, depth))
                 else:
-                    d[k] = Base.expand_mono(selfk)
+                    d[k] = Base.expand_mono(selfk, depth)
             d['id'] = str(self.id)
             return d
         except: # 不加注解上面会报错
