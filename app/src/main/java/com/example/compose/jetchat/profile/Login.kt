@@ -17,51 +17,28 @@
 package com.example.compose.jetchat.profile
 
 import android.widget.Toast
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Chat
-import androidx.compose.material.icons.outlined.Create
-import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.filled.AppRegistration
+import androidx.compose.material.icons.filled.Login
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.compose.jetchat.FunctionalityNotAvailablePopup
-import com.example.compose.jetchat.R
 import com.example.compose.jetchat.api_host
-import com.example.compose.jetchat.components.AnimatingFabContent
-import com.example.compose.jetchat.components.JetchatAppBar
-import com.example.compose.jetchat.components.baselineHeight
-import com.example.compose.jetchat.conversation.InputSelector
-import com.example.compose.jetchat.conversation.UserInput
 import com.example.compose.jetchat.conversation.UserInputText
-import com.example.compose.jetchat.data.colleagueProfile
-import com.example.compose.jetchat.data.meProfile
 import com.example.compose.jetchat.ktorClient
 import com.example.compose.jetchat.theme.JetchatTheme
 import com.google.accompanist.insets.ProvideWindowInsets
-import com.google.accompanist.insets.navigationBarsPadding
-import com.google.accompanist.insets.statusBarsPadding
 import io.ktor.client.request.*
 import kotlinx.coroutines.launch
-
-import kotlinx.serialization.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 var AccessToken: String = ""
@@ -86,7 +63,7 @@ data class loginForm(
 @ExperimentalFoundationApi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(afterLogin: () -> Unit) {
     val ctx = LocalContext.current
 
     val scope = rememberCoroutineScope()
@@ -105,27 +82,37 @@ fun LoginScreen() {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     editableTextT2(
-                        onTextChanged = { username = it},
+                        onTextChanged = { username = it },
                         textFieldValue = username
                     )
                     editableTextT2(
-                        onTextChanged = { password = it},
+                        onTextChanged = { password = it },
                         textFieldValue = password
                     )
-                    Row (){
+                    Row() {
                         Button(
                             onClick = {
-                                scope.launch{
+                                scope.launch {
                                     try {
                                         val r = ktorClient.post<String>("$api_host/user/login") {
-                                            body=loginForm(username=username.text, password = password.text)
+                                            body = loginForm(
+                                                username = username.text,
+                                                password = password.text
+                                            )
                                         }
-                                        val res = Json { ignoreUnknownKeys = true }.decodeFromString<tokenResponse>(r)
+                                        val res = Json {
+                                            ignoreUnknownKeys = true
+                                        }.decodeFromString<tokenResponse>(r)
                                         AccessToken = res.access_token
-                                        Toast.makeText(ctx, "登录成功$AccessToken", Toast.LENGTH_LONG).show()
-                                    } catch (e: Exception){
+                                        UserName = username.text
+                                        Toast.makeText(ctx, "登录成功$AccessToken", Toast.LENGTH_LONG)
+                                            .show()
+                                        afterLogin()
+
+                                    } catch (e: Exception) {
                                         Toast.makeText(ctx, "$e\n登录失败", Toast.LENGTH_LONG).show()
                                     }
                                 }
@@ -145,19 +132,24 @@ fun LoginScreen() {
                             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                             Text("登录")
                         }
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing*5))
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing * 5))
                         Button(
                             onClick = {
-                                scope.launch{
+                                scope.launch {
                                     try {
                                         val r = ktorClient.post<String>("$api_host/user/register") {
-                                            body=loginForm(username=username.text, password = password.text)
+                                            body = loginForm(
+                                                username = username.text,
+                                                password = password.text
+                                            )
                                         }
-                                        val res = Json { ignoreUnknownKeys = true }.decodeFromString<trueReturn>(r)
-                                        if (res.msg.length==0)
+                                        val res = Json {
+                                            ignoreUnknownKeys = true
+                                        }.decodeFromString<trueReturn>(r)
+                                        if (res.msg.length == 0)
                                             Toast.makeText(ctx, "注册成功", Toast.LENGTH_LONG).show()
 
-                                    } catch (e: Exception){
+                                    } catch (e: Exception) {
                                         Toast.makeText(ctx, "$e\n注册失败", Toast.LENGTH_LONG).show()
                                     }
 
@@ -190,8 +182,7 @@ fun LoginScreen() {
 
 @ExperimentalFoundationApi
 @Composable
-fun editableText(modifier: Modifier = Modifier)
-{
+fun editableText(modifier: Modifier = Modifier) {
     var textState by remember { mutableStateOf(TextFieldValue("fudgasuky")) }
     var textFieldFocusState by remember { mutableStateOf(false) }
     UserInputText(
@@ -213,8 +204,7 @@ fun editableTextT2(
     modifier: Modifier = Modifier,
     onTextChanged: (TextFieldValue) -> Unit,
     textFieldValue: TextFieldValue,
-)
-{
+) {
     var textFieldFocusState by remember { mutableStateOf(false) }
     UserInputText(
         textFieldValue = textFieldValue,
@@ -237,7 +227,7 @@ fun loginPreview() {
     ProvideWindowInsets(consumeWindowInsets = false) {
         JetchatTheme {
 //            editableText()
-            LoginScreen()
+            LoginScreen(afterLogin = {})
         }
     }
 }

@@ -95,7 +95,7 @@ async def comment_twi(f: comment_twi_form):
     tg: Twi = Twi.objects(pk=f.tid).first()
     if not tg:
         return falseReturn(404, '找不到待评论推文')
-    t = Twi(author=g().user, content=f.content).save()
+    t = Twi(author=g().user, content=f.content, is_top=False).save()
     tg.comments.append(t)
     tg.save()
     return trueReturn()
@@ -106,7 +106,7 @@ async def comment_twi(f: comment_twi_form):
 async def all_twi():
     return trueReturn(
         data={
-            'twis':[i.get_base_info() for i in Twi.objects()]
+            'twis':[i.get_base_info() for i in Twi.objects(is_top=True)]
         }
     )
 
@@ -117,21 +117,32 @@ async def follows_twi():
     fos = g().user.follows
     return trueReturn(
         data={
-            'twis':[i.get_base_info() for i in Twi.objects(author__in=fos)]
+            'twis':[i.get_base_info() for i in Twi.objects(author__in=fos, is_top=True)]
         }
     )
 
-@master_router.get('/twi/single', dependencies=[
+@master_router.get('/twi/user', dependencies=[
     Depends(validsign)
 ])
-async def single_twi(uid: str):
+async def user_twi(uid: str):
     a = User.objects(pk=uid).first()
     if not a:
         return falseReturn(404, '找不到给定用户')
     return trueReturn(
         data={
-            'twis':[i.get_base_info() for i in Twi.objects(author=a)]
+            'twis':[i.get_base_info() for i in Twi.objects(author=a, is_top=True)]
         }
     )
 
-
+@master_router.get('/twi/detail', dependencies=[
+    Depends(validsign)
+])
+async def single_twi(tid: str):
+    a = Twi.objects(pk=tid).first()
+    if not a:
+        return falseReturn(404, '找不到给定推文')
+    return trueReturn(
+        data={
+            'info': a.get_base_info()
+        }
+    )

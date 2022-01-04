@@ -5,6 +5,7 @@ from models.Base import *
 class User(Base, Document):
     username = StringField(primary_key=True)
     password: INVISIBLE = StringField()
+    avatar = StringField()
     desc = StringField()
     follows = ListField(ReferenceField('User', reverse_delete_rule=PULL), default=[])
 
@@ -23,3 +24,4 @@ class Twi(Base, Document):
     content = StringField()
     author = ReferenceField(User, reverse_delete_rule=CASCADE)
     comments = ListField(ReferenceField('Twi', reverse_delete_rule=PULL), default=[])
+    is_top = BooleanField(default=True)

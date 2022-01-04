@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import android.media.Image
 import android.media.ImageReader
 import android.net.sip.SipErrorCode
 import android.net.sip.SipErrorCode.TIME_OUT
@@ -12,6 +13,9 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import androidx.annotation.NonNull
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.produceState
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
@@ -67,3 +71,32 @@ val ktorClient = HttpClient(Android){
     }
 }
 val api_host = "http://4kr.top:8588"
+
+//class Result<T> (x: T?, status: Int){
+//    companion object{
+//        val Loading = Result(null, 0)
+//    }
+//}
+
+//@Composable
+//fun loadNetworkImage(
+//    url: String,
+//): State<Result<Image>> {
+//
+//    // Creates a State<T> with Result.Loading as initial value
+//    // If either `url` or `imageRepository` changes, the running producer
+//    // will cancel and will be re-launched with the new inputs.
+//    return produceState<Result<Image>>(initialValue = Result<Image>.Loading, url, imageRepository) {
+//
+//        // In a coroutine, can make suspend calls
+//        val image = imageRepository.load(url)
+//
+//        // Update State with either an Error or Success result.
+//        // This will trigger a recomposition where this State is read
+//        value = if (image == null) {
+//            Result.Error
+//        } else {
+//            Result.Success(image)
+//        }
+//    }
+//}

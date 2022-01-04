@@ -16,6 +16,7 @@
 
 package com.example.compose.jetchat.conversation
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
@@ -40,6 +41,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -49,13 +51,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -97,6 +93,7 @@ fun ConversationContent(
     modifier: Modifier = Modifier,
     onNavIconPressed: () -> Unit = { }
 ) {
+
     val authorMe = stringResource(R.string.author_me)
     val timeNow = stringResource(id = R.string.now)
 
@@ -104,7 +101,14 @@ fun ConversationContent(
     val scrollBehavior = remember { TopAppBarDefaults.pinnedScrollBehavior() }
     val scope = rememberCoroutineScope()
 
+
+//    LaunchedEffect{
+//
+//        Toast.makeText()
+//    }
+
     Surface(modifier = modifier) {
+
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 Modifier
@@ -179,6 +183,15 @@ fun ChannelNameBar(
         },
         actions = {
             // Search icon
+            Icon(
+                imageVector = Icons.Outlined.Refresh,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .clickable(onClick = { functionalityNotAvailablePopupShown = true })
+                    .padding(horizontal = 12.dp, vertical = 16.dp)
+                    .height(24.dp),
+                contentDescription = stringResource(id = R.string.refresh)
+            )// Search icon
             Icon(
                 imageVector = Icons.Outlined.Search,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
