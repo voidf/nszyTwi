@@ -42,13 +42,13 @@ async def profile(uid: str):
     u = User.objects(pk=uid).first()
     if not u:
         return falseReturn(404, '找不到该用户')
-    return trueReturn(data={"info":u.get_base_info()})
+    return trueReturn(data=u.get_base_info())
 
 @master_router.get('/user/me', dependencies=[
     Depends(validsign)
 ])
 async def getme():
-    return trueReturn(data={"info":g().user.get_base_info()})
+    return trueReturn(data=g().user.get_base_info())
 
 from G import g
 
@@ -105,9 +105,7 @@ async def comment_twi(f: comment_twi_form):
 ])
 async def all_twi():
     return trueReturn(
-        data={
-            'twis':[i.get_base_info() for i in Twi.objects(is_top=True).order_by('post_time')]
-        }
+        data=[i.get_base_info() for i in Twi.objects(is_top=True).order_by('post_time')]
     )
 
 @master_router.get('/twi/follows', dependencies=[
@@ -116,9 +114,7 @@ async def all_twi():
 async def follows_twi():
     fos = g().user.follows
     return trueReturn(
-        data={
-            'twis':[i.get_base_info() for i in Twi.objects(author__in=fos, is_top=True).order_by('post_time')]
-        }
+        data=[i.get_base_info() for i in Twi.objects(author__in=fos, is_top=True).order_by('post_time')]
     )
 
 @master_router.get('/twi/user', dependencies=[
@@ -129,9 +125,7 @@ async def user_twi(uid: str):
     if not a:
         return falseReturn(404, '找不到给定用户')
     return trueReturn(
-        data={
-            'twis':[i.get_base_info() for i in Twi.objects(author=a, is_top=True).order_by('post_time')]
-        }
+        data=[i.get_base_info() for i in Twi.objects(author=a, is_top=True).order_by('post_time')]
     )
 
 @master_router.get('/twi/detail', dependencies=[
@@ -142,7 +136,5 @@ async def single_twi(tid: str):
     if not a:
         return falseReturn(404, '找不到给定推文')
     return trueReturn(
-        data={
-            'info': a.get_base_info()
-        }
+        data=a.get_base_info()
     )

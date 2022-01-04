@@ -21,40 +21,38 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.compose.jetchat.conversation.SingleTwiData
 import com.example.compose.jetchat.data.colleagueProfile
 import com.example.compose.jetchat.data.meProfile
 
 class TwiDetailViewModel : ViewModel() {
 
-    private var tid: String = ""
+    var tid: String = ""
 
-    fun settid(newtid: String?) {
-        if (newtid != tid) {
-            tid = tid ?: meProfile.userId
+    suspend fun upd(newtid: String) {
+        if (newtid == tid) {
+            return
         }
-        // Workaround for simplicity
-        _userData.value = if (tid == meProfile.userId || tid == meProfile.displayName) {
-            meProfile
-        } else {
-            colleagueProfile
-        }
+        tid = newtid
+        val r = ktorClient.get<Resp<>>
+
     }
 
-    private val _userData = MutableLiveData<TwiDetailState>()
-    val userData: LiveData<TwiDetailState> = _userData
+    private val _twidata = MutableLiveData<SingleTwiData>()
+    val twidata: LiveData<SingleTwiData> = _twidata
 }
 
-@Immutable
-data class TwiDetailState(
-    val userId: String,
-    @DrawableRes val photo: Int?,
-    val name: String,
-    val status: String,
-    val displayName: String,
-    val position: String,
-    val twitter: String = "",
-    val timeZone: String?, // Null if me
-    val commonChannels: String? // Null if me
-) {
-    fun isMe() = userId == meProfile.userId
-}
+//@Immutable
+//data class TwiDetailState(
+//    val userId: String,
+//    @DrawableRes val photo: Int?,
+//    val name: String,
+//    val status: String,
+//    val displayName: String,
+//    val position: String,
+//    val twitter: String = "",
+//    val timeZone: String?, // Null if me
+//    val commonChannels: String? // Null if me
+//) {
+//    fun isMe() = userId == meProfile.userId
+//}
