@@ -92,12 +92,15 @@ import java.util.*
 //}
 
 
-
-fun ts2str(ts: Long): String {
+fun ts2ldt(ts: Long): LocalDateTime {
     return LocalDateTime.ofInstant(
         Instant.ofEpochSecond(ts),
-        TimeZone.getDefault().toZoneId()).format(
-            DateTimeFormatter.ofPattern("MM.dd HH:mm")
+        TimeZone.getDefault().toZoneId())
+}
+
+fun ts2str(ts: Long): String {
+    return ts2ldt(ts).format(
+        DateTimeFormatter.ofPattern("MM.dd HH:mm")
     );
 }
 
@@ -267,7 +270,7 @@ fun Messages(
     scrollState: LazyListState,
     modifier: Modifier = Modifier,
     onCommentClick: (String) -> Unit,
-    onLikeClick: (String) -> Unit = {},
+    onLikeClick: (String) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     Box(modifier = modifier) {

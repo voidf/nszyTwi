@@ -22,27 +22,37 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import com.example.compose.jetchat.MainViewModel
+import com.example.compose.jetchat.R
+import com.example.compose.jetchat.data.exampleUiState
 import com.example.compose.jetchat.theme.JetchatTheme
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.ViewWindowInsetObserver
+import com.google.accompanist.insets.navigationBarsPadding
 
 class TwiDetailFragment : Fragment() {
 
-    private val viewModel: ProfileViewModel by viewModels()
+    private val viewModel: TwiDetailViewModel by viewModels()
     private val activityViewModel: MainViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         // Consider using safe args plugin
-        val userId = arguments?.getString("userId")
-        viewModel.setUserId(userId)
+
+        val tid = arguments?.getString("tid")
+        if (tid != null) {
+            viewModel.updtid(tid)
+        }
     }
 
     override fun onCreateView(
@@ -58,18 +68,38 @@ class TwiDetailFragment : Fragment() {
         val windowInsets = ViewWindowInsetObserver(this).start()
 
         setContent {
-            val userData by viewModel.userData.observeAsState()
+            val twiData by viewModel.twidata.observeAsState()
 
             CompositionLocalProvider(LocalWindowInsets provides windowInsets) {
                 JetchatTheme {
-                    if (userData == null) {
+                    if (twiData == null) {
                         ProfileError()
                     } else {
-                        ProfileScreen(
-                            userData = userData!!,
+                        LaunchedEffect(Unit) {
+                            viewModel.upd()
+                        }
+                        TwiDetailScreen(
+                            twidata = twiData!!,
+                            navigateToProfile = { user ->
+                                // Click callback
+                                val bundle = bundleOf("userId" to user)
+                                findNavController().navigate(
+                                    R.id.nav_profile,
+                                    bundle
+                                )
+                            },
                             onNavIconPressed = {
                                 activityViewModel.openDrawer()
-                            }
+                            },
+                            uiState = exampleUiState,
+                                modifier = Modifier.navigationBarsPadding(bottom = false),
+                                onCommentClick = { tid ->
+                                    val bundle = bundleOf("tid" to tid)
+                                    findNavController().navigate(
+                                        R.id.nav_detail,
+                                        bundle
+                                    )
+                                },
                         )
                     }
                 }

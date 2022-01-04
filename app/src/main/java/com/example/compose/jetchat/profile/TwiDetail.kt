@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -43,12 +44,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,30 +56,45 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.compose.jetchat.FunctionalityNotAvailablePopup
+import com.example.compose.jetchat.*
 import com.example.compose.jetchat.R
-import com.example.compose.jetchat.SingleTwiData
-import com.example.compose.jetchat.UserData
 import com.example.compose.jetchat.components.AnimatingFabContent
 import com.example.compose.jetchat.components.JetchatAppBar
 import com.example.compose.jetchat.components.baselineHeight
+import com.example.compose.jetchat.conversation.ConversationUiState
+import com.example.compose.jetchat.conversation.Messages
+import com.example.compose.jetchat.conversation.UserInput
 import com.example.compose.jetchat.data.colleagueProfile
+import com.example.compose.jetchat.data.exampleUiState
 import com.example.compose.jetchat.data.meProfile
+import com.example.compose.jetchat.data.useryaya
 import com.example.compose.jetchat.theme.JetchatTheme
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.navigationBarsPadding
+import com.google.accompanist.insets.navigationBarsWithImePadding
 import com.google.accompanist.insets.statusBarsPadding
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TwiDetailScreen(twidata: SingleTwiData, onNavIconPressed: () -> Unit = { }) {
+fun TwiDetailScreen(
+    twidata: SingleTwiData,
+    navigateToProfile: (String) -> Unit,
+    uiState: ConversationUiState,
+    modifier: Modifier = Modifier,
+    onNavIconPressed: () -> Unit = { },
+    onCommentClick: (String) -> Unit = { },
+    onLikeClick: (String) -> Unit = { }
+) {
 
     var functionalityNotAvailablePopupShown by remember { mutableStateOf(false) }
     if (functionalityNotAvailablePopupShown) {
         FunctionalityNotAvailablePopup { functionalityNotAvailablePopupShown = false }
     }
 
+    val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val scrollStateLazy = rememberLazyListState()
     val scrollBehavior = remember { TopAppBarDefaults.pinnedScrollBehavior() }
 
     Column(
@@ -112,13 +123,30 @@ fun TwiDetailScreen(twidata: SingleTwiData, onNavIconPressed: () -> Unit = { }) 
         )
         BoxWithConstraints(modifier = Modifier.weight(1f)) {
             Surface {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState),
-                ) {
 
+
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .nestedScroll(scrollBehavior.nestedScrollConnection)
+                ) {
+                    Messages(
+                        messages = uiState.messages,
+                        navigateToProfile = navigateToProfile,
+                        scrollState = scrollStateLazy,
+                        onCommentClick = onCommentClick,
+                        onLikeClick = onLikeClick
+                    )
+                    UserInput(
+                        onMessageSent = { content ->
+                        },
+                        resetScroll = {
+                        },
+                        modifier = Modifier.navigationBarsWithImePadding(),
+                    )
                 }
+
+
             }
 
         }
@@ -128,18 +156,18 @@ fun TwiDetailScreen(twidata: SingleTwiData, onNavIconPressed: () -> Unit = { }) 
 @Preview
 @Composable
 fun tPreview(){
-    TwiDetailScreen(twidata = SingleTwiData(
-        "id",
-        "content",
-        UserData(
-            "username",
-            "avatarurl",
-            "desc",
-            listOf()
+    TwiDetailScreen(
+        twidata = SingleTwiData(
+            "id",
+            "content",
+            useryaya,
+            true,
+            1145141919
         ),
-        true,
-        1145141919
-    ))
+        navigateToProfile = {},
+        uiState = exampleUiState
+    )
+
 }
 
 @Composable

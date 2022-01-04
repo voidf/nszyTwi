@@ -25,36 +25,44 @@ import com.example.compose.jetchat.SingleTwiData
 import com.example.compose.jetchat.data.colleagueProfile
 import com.example.compose.jetchat.data.meProfile
 import com.example.compose.jetchat.*
+import com.example.compose.jetchat.data.useryaya
 import io.ktor.client.request.*
 
 class TwiDetailViewModel : ViewModel() {
 
     var tid: String = ""
-
-    suspend fun upd(newtid: String) {
+    fun updtid(newtid: String){
         if (newtid == tid) {
             return
         }
         tid = newtid
+        _twidata.value = sampleTwi
+    }
+
+    suspend fun upd() {
         val r = ktorClient.get<Resp<SingleTwiData>>("$api_host/twi/detail?tid=$tid")
         _twidata.value = r.data!!
     }
 
-    private val _twidata = MutableLiveData<SingleTwiData>()
+    private val _twidata = MutableLiveData<SingleTwiData>(sampleTwi)
     val twidata: LiveData<SingleTwiData> = _twidata
 }
 
+val sampleTwi = SingleTwiData(
+    "32143141",
+    "dhcvakugsdhnf",
+    useryaya,
+    false,
+    1641295619
+)
+
 //@Immutable
 //data class TwiDetailState(
-//    val userId: String,
-//    @DrawableRes val photo: Int?,
-//    val name: String,
-//    val status: String,
-//    val displayName: String,
-//    val position: String,
-//    val twitter: String = "",
-//    val timeZone: String?, // Null if me
-//    val commonChannels: String? // Null if me
+//    val id: String,
+//    val content: String,
+//    val author: UserData,
+//    val is_top: Boolean,
+//    val post_time: Long,
+//    val comments: List<SingleTwiData>? = null
 //) {
-//    fun isMe() = userId == meProfile.userId
 //}
