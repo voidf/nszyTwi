@@ -111,7 +111,7 @@ fun LoginScreen(afterLogin: () -> Unit) {
                                         AccessToken = res.access_token
                                         meProfile = ProfileScreenState(
                                             userId = username.text,
-                                            photo = R.drawable.ali,
+                                            photo = R.drawable.yaya_avatar,
                                             name = username.text,
                                             displayName = username.text,
                                             position="",
@@ -122,7 +122,7 @@ fun LoginScreen(afterLogin: () -> Unit) {
                                         )
 
                                         UserName = username.text
-                                        Toast.makeText(ctx, "登录成功$AccessToken", Toast.LENGTH_LONG)
+                                        Toast.makeText(ctx, "登录成功", Toast.LENGTH_LONG)
                                             .show()
                                         afterLogin()
 

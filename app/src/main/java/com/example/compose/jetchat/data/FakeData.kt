@@ -129,8 +129,8 @@ val exampleUiState = ConversationUiState(
  */
 val colleagueProfile = ProfileScreenState(
     userId = "12345",
-    photo = R.drawable.someone_else,
-    name = "Taylor Brooks",
+    photo = R.drawable.irori_avatar,
+    name = "Irori",
     status = "Away",
     displayName = "taylor",
     position = "Senior Android Dev at Openlane",
@@ -144,8 +144,8 @@ val colleagueProfile = ProfileScreenState(
  */
 var meProfile = ProfileScreenState(
     userId = "me",
-    photo = R.drawable.ali,
-    name = "Ali Conors",
+    photo = R.drawable.yaya_avatar,
+    name = "Yaya",
     status = "Online",
     displayName = "aliconors",
     position = "Senior Android Dev at Yearin\nGoogle Developer Expert",

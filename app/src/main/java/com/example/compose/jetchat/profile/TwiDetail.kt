@@ -66,9 +66,9 @@ import kotlinx.coroutines.launch
 fun TwiDetailScreen(
     twidata: SingleTwiData,
     navigateToProfile: (String) -> Unit,
-//    uiState: ConversationUiState,
     commentsState: List<SingleTwiData>,
     modifier: Modifier = Modifier,
+    onSendComment: (String) -> Unit,
 
     onNavIconPressed: () -> Unit = { },
     onCommentClick: (String) -> Unit = { },
@@ -121,7 +121,7 @@ fun TwiDetailScreen(
                             .border(3.dp, MaterialTheme.colorScheme.surface, CircleShape)
                             .clip(CircleShape)
                             .align(Alignment.Top),
-                        painter = painterResource(id = R.drawable.someone_else),
+                        painter = painterResource(id = R.drawable.irori_avatar),
                         contentScale = ContentScale.Crop,
                         contentDescription = null,
                     )
@@ -158,8 +158,7 @@ fun TwiDetailScreen(
             }
         }
         UserInput(
-            onMessageSent = { content ->
-            },
+            onMessageSent = { content -> onSendComment(content)},
             resetScroll = {
             },
             modifier = Modifier.navigationBarsWithImePadding(),
@@ -181,7 +180,8 @@ fun tPreview(){
             1145141919
         ),
         navigateToProfile = {},
-        commentsState = listOf()
+        commentsState = listOf(),
+        onSendComment = {}
     )
 
 }

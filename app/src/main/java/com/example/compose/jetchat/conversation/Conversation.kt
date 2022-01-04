@@ -381,7 +381,7 @@ fun Message(
                         .border(3.dp, MaterialTheme.colorScheme.surface, CircleShape)
                         .clip(CircleShape)
                         .align(Alignment.Top),
-                    painter = painterResource(id = R.drawable.someone_else),
+                    painter = painterResource(id = R.drawable.irori_avatar),
                     contentScale = ContentScale.Crop,
                     contentDescription = null,
                 )

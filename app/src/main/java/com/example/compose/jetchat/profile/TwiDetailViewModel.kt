@@ -46,7 +46,7 @@ class TwiDetailViewModel : ViewModel() {
         _twidata.value = r.data!!
         _comments.clear()
         if (r.data.comments != null) {
-            for (i in r.data.comments){
+            for (i in r.data.comments.reversed()){
                 _comments.add(i)
             }
         }

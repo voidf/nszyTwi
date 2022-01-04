@@ -25,6 +25,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.os.bundleOf
@@ -35,10 +36,13 @@ import androidx.navigation.findNavController
 import com.example.compose.jetchat.MainViewModel
 import com.example.compose.jetchat.R
 import com.example.compose.jetchat.data.exampleUiState
+import com.example.compose.jetchat.sendComment
 import com.example.compose.jetchat.theme.JetchatTheme
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.ViewWindowInsetObserver
 import com.google.accompanist.insets.navigationBarsPadding
+import kotlinx.coroutines.launch
+import java.lang.Exception
 
 class TwiDetailFragment : Fragment() {
 
@@ -79,6 +83,7 @@ class TwiDetailFragment : Fragment() {
                         LaunchedEffect(Unit) {
                             viewModel.upd()
                         }
+                        val scope = rememberCoroutineScope()
                         TwiDetailScreen(
                             twidata = twiData!!,
                             navigateToProfile = { user ->
@@ -101,6 +106,14 @@ class TwiDetailFragment : Fragment() {
                                     bundle
                                 )
                             },
+                            onSendComment = {
+                                scope.launch {
+                                    try {
+                                        sendComment(it, twiData!!.id)
+                                    }catch (e: Exception){e.printStackTrace()}
+                                    viewModel.upd()
+                                }
+                            }
                         )
                     }
                 }
