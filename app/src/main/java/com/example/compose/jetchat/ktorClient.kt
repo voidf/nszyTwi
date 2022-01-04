@@ -153,25 +153,23 @@ suspend fun sendComment(content: String, tid: String){
     }
 }
 
-suspend fun sendFo(uid: String){
+suspend fun sendFo(uid: String): String{
     try {
-        val r: HttpResponse = ktorClient.get("$api_host/user/fo?uid=$uid")
-        if (r.status != HttpStatusCode.Accepted) {
-            Log.d("【sendFo】[${r.status.value}]", r.content.toString())
-        }
+        val r = ktorClient.get<Resp<Nothing>>("$api_host/user/fo?uid=$uid")
+        return r.msg
     } catch (e: Exception){
         Log.d("【sendFo】Error!", e.toString())
+        return e.toString()
     }
 }
 
-suspend fun sendUnfo(uid: String){
+suspend fun sendUnfo(uid: String): String{
     try {
-        val r: HttpResponse = ktorClient.get("$api_host/user/unfo?uid=$uid")
-        if (r.status != HttpStatusCode.Accepted) {
-            Log.d("【sendUnfo】[${r.status.value}]", r.content.toString())
-        }
+        val r = ktorClient.get<Resp<Nothing>>("$api_host/user/unfo?uid=$uid")
+        return r.msg
     } catch (e: Exception){
         Log.d("【sendUnfo】Error!", e.toString())
+        return e.toString()
     }
 }
 

@@ -57,8 +57,11 @@ from G import g
 ])
 async def follow(uid: str):
     fu = User.objects(pk=uid).first()
+    
     if not fu:
         return falseReturn(404, '找不到关注对象')
+    if fu.pk == g().user.pk:
+        return falseReturn(400, '不能自己关注自己哦！')
     g().user.update(add_to_set__follows=fu)
     return trueReturn()
 
@@ -69,6 +72,8 @@ async def unfollow(uid: str):
     fu = User.objects(pk=uid).first()
     if not fu:
         return falseReturn(404, '找不到取消关注对象')
+    if fu.pk == g().user.pk:
+        return falseReturn(400, '不能自己取关自己哦！')
     g().user.update(pull__follows=fu)
     return trueReturn()
 

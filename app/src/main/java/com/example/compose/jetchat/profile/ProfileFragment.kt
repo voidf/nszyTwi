@@ -92,11 +92,11 @@ class ProfileFragment : Fragment() {
                             onFollowClick = {
                                 scope.launch {
                                     if(isFollowed!!){
-                                        sendUnfo(myud!!.username)
-                                        Toast.makeText(ctx, "取关成功", Toast.LENGTH_LONG).show()
+                                        var ret = sendUnfo(myud!!.username)
+                                        Toast.makeText(ctx, if(ret.length==0)"取关成功" else ret, Toast.LENGTH_LONG).show()
                                     }else{
-                                        sendFo(myud!!.username)
-                                        Toast.makeText(ctx, "关注成功", Toast.LENGTH_LONG).show()
+                                        var ret = sendFo(myud!!.username)
+                                        Toast.makeText(ctx, if(ret.length==0)"关注成功" else ret, Toast.LENGTH_LONG).show()
                                     }
                                     viewModel.upd()
                                 }
