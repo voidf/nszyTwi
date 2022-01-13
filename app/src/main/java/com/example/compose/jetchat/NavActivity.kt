@@ -50,14 +50,17 @@ import kotlinx.coroutines.launch
 
 
 class NavActivity : AppCompatActivity() {
-    private val viewModel: MainViewModel by viewModels()
-
+    val viewModel: MainViewModel by viewModels()
+    companion object{
+        var singleton: NavActivity? = null
+    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Turn off the decor fitting system windows, which allows us to handle insets,
         // including IME animations
+        singleton = this
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
@@ -68,6 +71,9 @@ class NavActivity : AppCompatActivity() {
                     LocalBackPressedDispatcher provides this.onBackPressedDispatcher
                 ) {
                     val drawerState = rememberDrawerState(initialValue = Closed)
+                    LaunchedEffect(Unit){
+                        viewModel.updfolist()
+                    }
 
                     val drawerOpen by viewModel.drawerShouldBeOpened.collectAsState()
                     if (drawerOpen) {
@@ -102,7 +108,8 @@ class NavActivity : AppCompatActivity() {
                             scope.launch {
                                 drawerState.close()
                             }
-                        }
+                        },
+                        folist = viewModel.folist
                     ) {
                         AndroidViewBinding(ContentMainBinding::inflate)
                     }

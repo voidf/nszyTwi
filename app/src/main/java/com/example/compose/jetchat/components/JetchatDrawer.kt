@@ -46,13 +46,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.compose.jetchat.R
+import com.example.compose.jetchat.UserData
 import com.example.compose.jetchat.data.colleagueProfile
 import com.example.compose.jetchat.data.meProfile
+import com.example.compose.jetchat.profile.UserName
 import com.example.compose.jetchat.theme.JetchatTheme
 import com.google.accompanist.insets.statusBarsHeight
 
 @Composable
-fun ColumnScope.JetchatDrawer(onProfileClicked: (String) -> Unit, onChatClicked: (String) -> Unit) {
+fun ColumnScope.JetchatDrawer(
+    onProfileClicked: (String) -> Unit,
+    onChatClicked: (String) -> Unit,
+    folist: List<UserData>,
+) {
     // Use statusBarsHeight() to add a spacer which pushes the drawer content
     // below the status bar (y-axis)
     Spacer(Modifier.statusBarsHeight())
@@ -63,9 +69,20 @@ fun ColumnScope.JetchatDrawer(onProfileClicked: (String) -> Unit, onChatClicked:
     ChatItem("droidcon-nyc", false) { onChatClicked("droidcon-nyc") }
     DividerItem(modifier = Modifier.padding(horizontal = 28.dp))
     DrawerItemHeader("Recent Profiles")
-    ProfileItem("Ali Conors (you)", meProfile.photo) { onProfileClicked(meProfile.userId) }
-    ProfileItem("Taylor Brooks", colleagueProfile.photo) {
-        onProfileClicked(colleagueProfile.userId)
+//    ProfileItem("Ali Conors (you)", meProfile.photo) { onProfileClicked(meProfile.userId) }
+//    ProfileItem("Taylor Brooks", colleagueProfile.photo) {
+//        onProfileClicked(colleagueProfile.userId)
+//    }
+    for(fos in folist)
+    {
+        if(fos.username == UserName)
+            ProfileItem(text = "我的资料卡", profilePic = meProfile.photo) {
+                onProfileClicked(fos.username)
+            }
+        else
+            ProfileItem(text = fos.username, profilePic = colleagueProfile.photo) {
+                onProfileClicked(fos.username)
+            }
     }
 }
 
@@ -188,7 +205,7 @@ fun DrawerPreview() {
     JetchatTheme {
         Surface {
             Column {
-                JetchatDrawer({}, {})
+                JetchatDrawer({}, {},folist= listOf(UserData("yaya",null,null,null)))
             }
         }
     }
@@ -199,7 +216,7 @@ fun DrawerPreviewDark() {
     JetchatTheme(isDarkTheme = true) {
         Surface {
             Column {
-                JetchatDrawer({}, {})
+                JetchatDrawer({}, {},folist= listOf(UserData("kuro",null,null,null)))
             }
         }
     }

@@ -22,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.NavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import com.example.compose.jetchat.UserData
 import com.example.compose.jetchat.theme.JetchatTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,7 +31,8 @@ fun JetchatScaffold(
     drawerState: DrawerState = rememberDrawerState(initialValue = Closed),
     onProfileClicked: (String) -> Unit,
     onChatClicked: (String) -> Unit,
-    content: @Composable () -> Unit
+    folist: List<UserData>,
+    content: @Composable () -> Unit,
 ) {
     JetchatTheme {
         NavigationDrawer(
@@ -38,7 +40,8 @@ fun JetchatScaffold(
             drawerContent = {
                 JetchatDrawer(
                     onProfileClicked = onProfileClicked,
-                    onChatClicked = onChatClicked
+                    onChatClicked = onChatClicked,
+                    folist
                 )
             },
             content = content

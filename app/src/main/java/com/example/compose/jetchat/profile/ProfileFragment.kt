@@ -33,6 +33,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.example.compose.jetchat.MainViewModel
+import com.example.compose.jetchat.NavActivity
 import com.example.compose.jetchat.sendFo
 import com.example.compose.jetchat.sendUnfo
 import com.example.compose.jetchat.theme.JetchatTheme
@@ -61,6 +62,7 @@ class ProfileFragment : Fragment() {
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
+
 
         // Create a ViewWindowInsetObserver using this view, and call start() to
         // start listening now. The WindowInsets instance is returned, allowing us to
@@ -93,9 +95,11 @@ class ProfileFragment : Fragment() {
                                 scope.launch {
                                     if(isFollowed!!){
                                         var ret = sendUnfo(myud!!.username)
+                                        NavActivity.singleton!!.viewModel.updfolist()
                                         Toast.makeText(ctx, if(ret.length==0)"取关成功" else ret, Toast.LENGTH_LONG).show()
                                     }else{
                                         var ret = sendFo(myud!!.username)
+                                        NavActivity.singleton!!.viewModel.updfolist()
                                         Toast.makeText(ctx, if(ret.length==0)"关注成功" else ret, Toast.LENGTH_LONG).show()
                                     }
                                     viewModel.upd()

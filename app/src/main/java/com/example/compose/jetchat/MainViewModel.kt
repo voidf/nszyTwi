@@ -16,7 +16,10 @@
 
 package com.example.compose.jetchat
 
+import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import com.example.compose.jetchat.data.defaultfolist
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -33,5 +36,18 @@ class MainViewModel : ViewModel() {
     }
     fun resetOpenDrawerAction() {
         _drawerShouldBeOpened.value = false
+    }
+
+    private var _folist: MutableList<UserData> = mutableStateListOf(*defaultfolist.toTypedArray())
+    val folist: List<UserData> = _folist
+    suspend fun updfolist() {
+        Log.d("【updfolist】","updating")
+        val myinfo = getMe()
+        if(myinfo.follows!=null) {
+            _folist.clear()
+            _folist.add(myinfo)
+            for(i in myinfo.follows)_folist.add(i)
+//            _folist = myinfo.follows.toMutableList()
+        }
     }
 }

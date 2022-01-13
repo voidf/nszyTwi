@@ -183,6 +183,16 @@ suspend fun getUser(uid: String): UserData {
     }
 }
 
+suspend fun getMe(): UserData{
+    try{
+        val r = ktorClient.get<Resp<UserData>>("$api_host/user/me")
+        return r.data
+    } catch (e: Exception){
+        Log.d("【getMe】Error!", e.toString())
+        return errorUserData
+    }
+}
+
 
 
 

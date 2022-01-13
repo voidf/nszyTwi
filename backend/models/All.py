@@ -33,9 +33,6 @@ class User(Base, Document):
         d = self.get_base_info_excluded()
         d['follows'] = [i.get_base_info_excluded() for i in self.follows]
         return d
-
-    # def __int__(self):
-    #     return int(self.username)
     def __str__(self):
         return str(self.username)
 

@@ -159,3 +159,5 @@ var errorUserData = UserData(
     "ERROR!",
     "ERROR!",
 )
+
+val defaultfolist = listOf<UserData>(errorUserData, errorUserData, errorUserData)
